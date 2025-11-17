@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 
+//TODO add generic methods to DataBase, then override them here
 public class GameDataBase implements DataBase {
     // The database storing each game.
     // The string contains the prompt used for the game, and helps us search for specific prompts.
@@ -61,4 +62,3 @@ public class GameDataBase implements DataBase {
         }
         }
     }
-}

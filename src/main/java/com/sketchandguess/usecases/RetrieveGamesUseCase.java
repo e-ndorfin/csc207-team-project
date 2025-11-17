@@ -1,5 +1,5 @@
 package com.sketchandguess.usecases;
-
+// TODO read up on usecases and invert methods between this/class files if needed
 import com.sketchandguess.database.GameDataBase;
 import com.sketchandguess.entities.GameRecord;
 
@@ -12,10 +12,10 @@ public class RetrieveGamesUseCase {
     public RetrieveGamesUseCase(GameDataBase GameData) {
         this.GameData = GameData;
     }
-    public Map<Integer, GameRecord> GetGames() {
+    public ArrayList<GameRecord> GetGames() {
         return this.GameData.GameData;
     }
-    public Map<Integer, GameRecord> SearchGames(String search) {
+    public ArrayList<GameRecord> SearchGames(String search) {
         return GameData.SearchWord(search).GameData;
     }
 
