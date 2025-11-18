@@ -48,10 +48,7 @@ public class Gallery extends JPanel {
         RecordList.setVisibleRowCount(2);
         GalleryScrollPane.add(RecordList);
 
-        if (CurrentDataBase.GameData.isEmpty()) {
-            JLabel EmptyLabel = new JLabel(EmptyGallery, SwingConstants.CENTER);
-            add(EmptyLabel, BorderLayout.CENTER);
-        } else {
+        if (! CurrentDataBase.GameData.isEmpty()) {
             add(GalleryScrollPane, BorderLayout.CENTER);
         }
 
@@ -78,10 +75,15 @@ public class Gallery extends JPanel {
     }
     private void UpdateListView() {
         RecordListModel = new DefaultListModel<GameRecord>();
-        for (GameRecord G : CurrentDataBase.GameData) {
-            RecordListModel.addElement(G);
+        if (! CurrentDataBase.GameData.isEmpty()) {
+            for (GameRecord G : CurrentDataBase.GameData) {
+                RecordListModel.addElement(G);
+            }
+            RecordList = new JList<>(RecordListModel);
+        } else {
+            JLabel EmptyLabel = new JLabel(EmptyGallery, SwingConstants.CENTER);
+            add(EmptyLabel, BorderLayout.CENTER);
         }
-        RecordList = new JList<>(RecordListModel);
         UpdateIconView();
 
     }
