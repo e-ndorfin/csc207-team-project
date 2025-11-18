@@ -5,6 +5,9 @@ import com.sketchandguess.database.GameDataBase;
 import com.sketchandguess.entities.GameRecord;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,16 +21,69 @@ public class Gallery extends JPanel {
     public GameDataBase CurrentDataBase;
 
     private final JTextField SearchBarField = new JTextField(15);
-    private final JLabel SearchBarLabel = new JLabel("Search:");
     private final JPanel SearchBar = new JPanel();
+    private final JButton SearchButton = new JButton("Search");
+    private final JButton ClearButton = new JButton("Clear");
     private Map<ImageIcon, GameRecord> IconView;
+    private JList RecordList;
+    private DefaultListModel<GameRecord> RecordListModel;
+    private JScrollPane GalleryScrollPane = new JScrollPane();
 
-    public Gallery(GameDataBase MainDB) {
-        this.MainDataBase = MainDB;
-        this.CurrentDataBase = MainDB;
-        this.SearchBar.add(SearchBarLabel);
+
+    public Gallery() {
+        this.MainDataBase = new GameDataBase();
+        this.CurrentDataBase = MainDataBase;
+
         this.SearchBar.add(SearchBarField);
+        this.SearchBar.add(SearchButton);
+        this.SearchBar.add(ClearButton);
+        add(SearchBar, BorderLayout.NORTH);
+
         this.UpdateIconView();
+        this.UpdateListView();
+
+        RecordList = new JList(RecordListModel);
+        RecordList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        RecordList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
+        RecordList.setVisibleRowCount(2);
+        GalleryScrollPane.add(RecordList);
+
+        if (CurrentDataBase.GameData.isEmpty()) {
+            JLabel EmptyLabel = new JLabel(EmptyGallery, SwingConstants.CENTER);
+            add(EmptyLabel, BorderLayout.CENTER);
+        } else {
+            add(GalleryScrollPane, BorderLayout.CENTER);
+        }
+
+        SearchButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CurrentDataBase = MainDataBase.SearchWord(SearchBarField.getText());
+                UpdateListView();
+            }
+                                       });
+
+        ClearButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CurrentDataBase = MainDataBase;
+                UpdateListView();
+            }
+        });
+        {
+
+        }
+
+
+    }
+    private void UpdateListView() {
+        RecordListModel = new DefaultListModel<GameRecord>();
+        for (GameRecord G : CurrentDataBase.GameData) {
+            RecordListModel.addElement(G);
+        }
+        RecordList = new JList<>(RecordListModel);
+        UpdateIconView();
+
     }
 
     public void UpdateIconView() {
@@ -36,8 +92,5 @@ public class Gallery extends JPanel {
             this.IconView.put(new ImageIcon(G.getImagePath()), G);
         }
     }
-
-    SearchBarField.addActionListener;
-
 
 }
