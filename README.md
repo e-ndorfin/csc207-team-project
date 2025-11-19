@@ -26,7 +26,8 @@
     *   **`database/` (Interfaces):** Defines the contracts (interfaces) for data storage that Use Cases rely on.
     *   **`data_access/` (Implementations):** The actual code that implements the interfaces to store data (e.g., to memory, CSV, or SQL).
     *   **`api/`:** Handles external API calls (e.g., HuggingFace).
-    *   **`controllers/`, `presenters/`:** Adapters for the UI.
+    *   **`controllers/`:** Adapters for the UI that serve as the entry point for user actions. When a user interacts with the View (e.g., clicks a button), the Controller takes that input and triggers the appropriate Use Case.
+    *   **`presenters/`:** Adapters for the UI that handle the output. After the Use Case finishes processing, it passes data to the Presenter, which formats it for the UI (often updating a ViewModel) so the View can display the result.
 
 ### 4. `gui/` (Frameworks & Drivers)
 *   **Purpose:** Contains all Java Swing code and the main application entry point.
