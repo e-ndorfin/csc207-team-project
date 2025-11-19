@@ -1,17 +1,5 @@
 # Team Project
 
-Please keep this up-to-date with information about your project throughout the term.
-
-The readme should include information such as:
-- a summary of what your application is all about
-- a list of the user stories, along with who is responsible for each one
-- information about the API(s) that your project uses 
-- screenshots or animations demonstrating current functionality
-
-By keeping this README up-to-date,
-your team will find it easier to prepare for the final presentation
-at the end of the term.
-
 ## Schedule / plan 
 
 - Nov 10-14 - PRs + something to show (one PR each member, runnable code, be able to make API calls)
@@ -20,9 +8,39 @@ at the end of the term.
 - Nov 24-25 - tests achieving 100% code coverage
 - Dec 1 - Presentation 
 
+## Repository Layout
 
+### 1. `entities/` (Enterprise Business Rules)
+*   **Purpose:** Contains the core business objects and data structures.
+*   **Examples:** `GameRecord`, `GameSession`, `Difficulty`, `Player`.
+*   **Dependencies:** Independent of all other layers.
 
-## Zac: Main menu + gameplay 
+### 2. `usecases/` (Application Business Rules)
+*   **Purpose:** Contains the application-specific business logic. These classes orchestrate the flow of data between the UI and Entities.
+*   **Examples:** `GameplayUseCase`, `RetrieveGamesUseCase`.
+*   **Dependencies:** Depends only on `entities` and interfaces defined in `interface_adapters`.
+
+### 3. `interface_adapters/` (Interface Adapters)
+*   **Purpose:** Converts data between the format most convenient for the Use Cases and the format most convenient for external agencies (UI, DB, Web).
+*   **Sub-folders:**
+    *   **`database/` (Interfaces):** Defines the contracts (interfaces) for data storage that Use Cases rely on.
+    *   **`data_access/` (Implementations):** The actual code that implements the interfaces to store data (e.g., to memory, CSV, or SQL).
+    *   **`api/`:** Handles external API calls (e.g., HuggingFace).
+    *   **`controllers/`, `presenters/`:** Adapters for the UI.
+
+### 4. `gui/` (Frameworks & Drivers)
+*   **Purpose:** Contains all Java Swing code and the main application entry point.
+*   **Examples:** `Application.java`, `Game.java`, `MainMenu.java`.
+
+### Clarification: Data Access vs. Database
+This structure separates the *definition* of data operations from their *implementation*:
+
+*   **Use Case:** "I need to `save(game)`." (It calls the **Interface** in `interface_adapters/database`).
+*   **The Data Access Object says:** "Okay, I will `save(game)` by writing to `games.csv`." (It **Implements** the interface in `interface_adapters/data_access`).
+
+## Responsibilities
+
+### Zac: Main menu + gameplay 
 - gameplayUseCase
 - recordGameUseCase 
 - retrieveSettingsUseCase
@@ -37,7 +55,7 @@ at the end of the term.
 
         + call()
 
-## Ziyi: Advanced drawing features
+### Ziyi: Advanced drawing features
 
 - GameRecord
     - String imagePath (where the image is stored in our database)
@@ -56,7 +74,7 @@ at the end of the term.
     + getDifficulty()
     + getPrompt()
 
-## David: gallery window 
+### David: gallery window 
 - retrieveGamesUseCase
 
 - DataBase
@@ -64,14 +82,14 @@ at the end of the term.
     - UserSettingsDataBase
 
 
-## OG: Settings
+### OG: Settings
 - editSettingsUseCase
 
 - Difficulty
     - String difficultyName
     - String[] prompts
 
-## Laney: Saving pictures + new picture window
+### Laney: Saving pictures + new picture window
 - deleteGameUseCase
 - saveImageToUserUseCase
 
@@ -84,7 +102,7 @@ UML / project layout:
 
 
 
-## guis
+### Overall 
 - Application (implement last)
 - Game (Zac + Ziyi)
 - MainMenu (Zac)
@@ -95,7 +113,7 @@ UML / project layout:
 
 
 
-# NOTES ON CLEAN ARCHITECTURE
+## NOTES ON CLEAN ARCHITECTURE
 base - all dependencies should point inward 
 ![[Pasted image 20251117140434.png]]
 isolating what the system does 
