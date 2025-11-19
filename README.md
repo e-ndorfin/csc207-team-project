@@ -9,10 +9,11 @@
 - Dec 1 - Presentation 
 
 ## Repository Layout
+If you're confused by any of this, check out the ca-lab repository at https://github.com/ponsiclius/ca-lab/tree/main/src. The layout is copied from there. 
 
 ### 1. `entities/` (Enterprise Business Rules)
 *   **Purpose:** Contains the core business objects and data structures.
-*   **Examples:** `GameRecord`, `GameSession`, `Difficulty`, `Player`.
+*   **Examples:** `GameRecord`, `GameSession`, `Difficulty`.
 *   **Dependencies:** Independent of all other layers.
 
 ### 2. `usecases/` (Application Business Rules)
@@ -21,23 +22,36 @@
 *   **Dependencies:** Depends only on `entities` and interfaces defined in `interface_adapters`.
 
 ### 3. `interface_adapters/` (Interface Adapters)
-*   **Purpose:** Converts data between the format most convenient for the Use Cases and the format most convenient for external agencies (UI, DB, Web).
-*   **Sub-folders:**
-    *   **`database/` (Interfaces):** Defines the contracts (interfaces) for data storage that Use Cases rely on.
-    *   **`data_access/` (Implementations):** The actual code that implements the interfaces to store data (e.g., to memory, CSV, or SQL).
-    *   **`api/`:** Handles external API calls (e.g., HuggingFace).
-    *   **`controllers/`:** Adapters for the UI that serve as the entry point for user actions. When a user interacts with the View (e.g., clicks a button), the Controller takes that input and triggers the appropriate Use Case.
-    *   **`presenters/`:** Adapters for the UI that handle the output. After the Use Case finishes processing, it passes data to the Presenter, which formats it for the UI (often updating a ViewModel) so the View can display the result.
+**Purpose:** Converts data between the format most convenient for the Use Cases and the format most convenient for external agencies (UI, DB, Web).
+
+-   `ViewModel.java`: A generic class that holds the `State` for a view. Our specific ViewModels will extend this.
+-   `ViewManagerModel.java`: Manages which view is currently active on the screen.
+
+The sub-folders (`game`, `menu`, `gallery`, etc.) correspond to the features each of us is working on.
+
+#### `Controller` (e.g., `GameController`)
+https://github.com/ponsiclius/ca-lab/blob/main/src/main/java/interface_adapter/login/LoginController.java
+*   **Role:** The "Input Handler".
+*   **Your Task:** When a user interacts with your `gui` view, the view calls a method in this Controller. Your controller's only job is to package the user's input and send it to the correct `UseCase` for processing.
+
+#### `Presenter` (e.g., `GamePresenter`)
+https://github.com/ponsiclius/ca-lab/blob/main/src/main/java/interface_adapter/login/LoginPresenter.java
+*   **Role:** The "Output Handler".
+*   **Your Task:** After a `UseCase` finishes, it calls your Presenter with the results. Your presenter's job is to take that data, format it for display by updating the `ViewModel`. **It should never talk to the `gui` view directly.**
+
+#### `State` (e.g., `GameState`)
+https://github.com/ponsiclius/ca-lab/blob/main/src/main/java/interface_adapter/login/LoginState.java
+*   **Role:** A simple data-holding class.
+*   **Your Task:** This class holds all the information your `gui` view needs to display itself (e.g., `currentPrompt`, `timeRemaining`, `errorMessage`). It should only have fields, getters, and setters.
+
+#### `ViewModel` (e.g., `GameViewModel`)
+https://github.com/ponsiclius/ca-lab/blob/main/src/main/java/interface_adapter/login/LoginViewModel.java
+*   **Role:** The "State Manager" for a view.
+*   **Your Task:** This class holds your `State` object. Your `gui` view will "listen" to this ViewModel. When your Presenter updates the state, the ViewModel notifies the view, which then redraws itself with the new information.
 
 ### 4. `gui/` (Frameworks & Drivers)
 *   **Purpose:** Contains all Java Swing code and the main application entry point.
 *   **Examples:** `Application.java`, `Game.java`, `MainMenu.java`.
-
-### Clarification: Data Access vs. Database
-This structure separates the *definition* of data operations from their *implementation*:
-
-*   **Use Case:** "I need to `save(game)`." (It calls the **Interface** in `interface_adapters/database`).
-*   **The Data Access Object says:** "Okay, I will `save(game)` by writing to `games.csv`." (It **Implements** the interface in `interface_adapters/data_access`).
 
 ## Responsibilities
 
