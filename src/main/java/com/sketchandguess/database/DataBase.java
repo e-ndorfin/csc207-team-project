@@ -1,5 +1,7 @@
 package com.sketchandguess.database;
 
-public interface DataBase {
+import com.sketchandguess.entities.GameRecord;
 
+public interface DataBase {
+    void addItem(GameRecord item);
 }

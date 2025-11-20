@@ -3,7 +3,6 @@ package com.sketchandguess.database;
 import com.sketchandguess.entities.GameRecord;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -51,6 +50,11 @@ public class GameDataBase implements DataBase {
             }
         }
         return new GameDataBase(Matches);
+    }
+
+    @Override
+    public void addItem(GameRecord item) {
+        this.GameData.add(item);
     }
 
     public Boolean DeleteGame(GameRecord DeletedGame) {
