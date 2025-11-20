@@ -4,66 +4,77 @@ import com.sketchandguess.database.UserSettingsDataBase;
 
 import javax.swing.*;
 import java.awt.*;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import java.awt.CardLayout;
 
-import com.sketchandguess.database.UserSettingsDataBase;
-
+interface RecordGameController {
+    void onDoneButtonClicked(java.awt.image.BufferedImage image);
+}
 
 public class Application extends JFrame {
-
-    private final UserSettingsDataBase userSettingsDataBase;
-
-    private final JPanel rootPanel;
-    private final CardLayout cardLayout;
-
-    private final MainMenu mainMenu;
-    private final Settings settings;
-    // later you can add: private final Game game;
-
+    private MainMenu mainMenu;
+    private Game game;
+    private Gallery gallery;
+    private Settings settings;
+    private UserSettingsDataBase userSettingsDataBase;
+    
     public Application() {
-        // shared "database" instance for the whole app
-        this.userSettingsDataBase = new UserSettingsDataBase();
-
-        this.cardLayout = new CardLayout();
-        this.rootPanel = new JPanel(cardLayout);
-
-        // create screens
-        this.mainMenu = new MainMenu(this, userSettingsDataBase);
-        this.settings = new Settings(this, userSettingsDataBase);
-
-        // register screens with card layout
-        rootPanel.add(mainMenu, "MAIN_MENU");
-        rootPanel.add(settings, "SETTINGS");
-
-        // add to frame
-        setContentPane(rootPanel);
-
         setTitle("Sketch and Guess");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
         setLocationRelativeTo(null);
+        
+        // Mock controller
+        RecordGameController mockController = new RecordGameController() {
+            @Override
+            public void onDoneButtonClicked(java.awt.image.BufferedImage image) {
+                System.out.println("Game completed! Image saved.");
+                showMainmenu();
+            }
+        };
+        
+        userSettingsDataBase = new UserSettingsDataBase();
 
-        showMainmenu();  // start at main menu
+        // Initialize views
+        mainMenu = new MainMenu(this);
+        game = new Game(this, mockController);
+        gallery = new Gallery();
+        settings = new Settings(this, userSettingsDataBase);
+        
+        // Starting point is main menu
+        showMainmenu();
+        
+        setVisible(true);
     }
-
+    
     public void showMainmenu() {
-        cardLayout.show(rootPanel, "MAIN_MENU");
+        setContentPane(mainMenu);
+        revalidate();
+        repaint();
     }
-
+    
+    public void showGame() {
+        setContentPane(game);
+        revalidate();
+        repaint();
+    }
+    
+    public void showGallery() {
+        setContentPane(gallery);
+        revalidate();
+        repaint();
+    }
+    
     public void showSettings() {
-        cardLayout.show(rootPanel, "SETTINGS");
+        setContentPane(settings);
+        revalidate();
+        repaint();
     }
-
-    // later you can add something like:
-    // public void showGame(RecordGameController controller) { ... }
-
+    
     public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            Application app = new Application();
-            app.setVisible(true);
+        SwingUtilities.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                new Application();
+            }
         });
     }
 }

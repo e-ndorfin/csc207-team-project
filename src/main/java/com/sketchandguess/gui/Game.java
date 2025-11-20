@@ -1,6 +1,6 @@
 package com.sketchandguess.gui;
 
-import com.sketchandguess.interface_adapter.RecordGameController;
+
 
 import javax.swing.*;
 import java.awt.*;
