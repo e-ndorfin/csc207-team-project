@@ -27,6 +27,7 @@ By signing below, we acknowledge that we have read, discussed, and agreed to the
 Team Member Signatures:
 
 Zachary Tianyi Tang
+
 Ziyi Wang
 David Parent
 Munkh-Orgil Tserenjamts
