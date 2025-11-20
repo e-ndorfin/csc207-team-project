@@ -34,6 +34,7 @@ public class Application extends JFrame {
         game = new Game(this, mockController);
         gallery = new Gallery();
         settings = new Settings();
+        gameResult = new GameResult(this);
         
         // Starting point is main menu
         showMainmenu();
