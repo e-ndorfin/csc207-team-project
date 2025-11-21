@@ -25,7 +25,7 @@ public class PictureWindow extends JFrame implements PropertyChangeListener {
     public PictureWindow(GalleryWindowViewModel GalleryWindowViewModel,
                          GalleryWindowController GalleryWindowController) {
 
-        this.pGalleryWindowViewModel = GalleryWindowViewModel;
+        this.GalleryWindowViewModel = GalleryWindowViewModel;
         this.GalleryWindowController = GalleryWindowController;
         this.GalleryWindowViewModel.addPropertyChangeListener(this);
 

@@ -1,7 +1,14 @@
 package com.sketchandguess.gui;
 
+import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowController;
+import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowPresenter;
+import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowViewModel;
+import com.sketchandguess.usecases.select_game.SelectGameRecordUseCase;
+
 import javax.swing.*;
 import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 
 interface RecordGameController {
     void onDoneButtonClicked(java.awt.image.BufferedImage image);
@@ -12,13 +19,16 @@ public class Application extends JFrame {
     private Game game;
     private Gallery gallery;
     private Settings settings;
-    
+
+    private final GalleryWindowViewModel galleryWindowViewModel;
+    private final GalleryWindowController galleryWindowController;
+
     public Application() {
         setTitle("Sketch and Guess");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
         setLocationRelativeTo(null);
-        
+
         // Mock controller
         RecordGameController mockController = new RecordGameController() {
             @Override
@@ -27,43 +37,68 @@ public class Application extends JFrame {
                 showMainmenu();
             }
         };
-        
+
+        // Initialize GalleryWindow components
+        galleryWindowViewModel = new GalleryWindowViewModel();
+        GalleryWindowPresenter galleryWindowPresenter = new GalleryWindowPresenter(galleryWindowViewModel);
+        SelectGameRecordUseCase selectGameRecordUseCase = new SelectGameRecordUseCase(galleryWindowPresenter);
+        galleryWindowController = new GalleryWindowController(selectGameRecordUseCase);
+
         // Initialize views
         mainMenu = new MainMenu(this);
         game = new Game(this, mockController);
-        gallery = new Gallery();
+        gallery = new Gallery(galleryWindowController); // Pass the controller to Gallery
         settings = new Settings();
-        
+
+        // Add PropertyChangeListener to GalleryWindowViewModel
+        galleryWindowViewModel.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (evt.getPropertyName().equals("state")) {
+                    if (galleryWindowViewModel.getState().getCurrentRecord() != null) {
+                        // Create and show PictureWindow when a record is selected
+                        PictureWindow pictureWindow = new PictureWindow(galleryWindowViewModel, galleryWindowController);
+                        pictureWindow.setVisible(true);
+                    }
+                }
+            }
+        });
+
         // Starting point is main menu
         showMainmenu();
-        
+
         setVisible(true);
     }
-    
+
     public void showMainmenu() {
         setContentPane(mainMenu);
         revalidate();
         repaint();
     }
-    
+
     public void showGame() {
         setContentPane(game);
         revalidate();
         repaint();
     }
-    
+
     public void showGallery() {
         setContentPane(gallery);
         revalidate();
         repaint();
     }
-    
+
     public void showSettings() {
         setContentPane(settings);
         revalidate();
         repaint();
+        // Ensure the gallery view updates when shown
+        if (settings == gallery) { // This condition is likely incorrect, assuming settings and gallery are distinct panels
+            // If gallery is being shown, ensure it updates its view
+            // This might require a method in Gallery to trigger an update
+        }
     }
-    
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override

@@ -1,7 +1,6 @@
-package com.sketchandguess.gui;
-
 import com.sketchandguess.database.GameDataBase;
 import com.sketchandguess.entities.GameRecord;
+import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -26,8 +25,11 @@ public class Gallery extends JPanel {
     private final JPanel centerPanel = new JPanel(new CardLayout());
     private final JLabel emptyLabel = new JLabel(emptyGallery, SwingConstants.CENTER);
 
+    private final GalleryWindowController galleryWindowController;
 
-    public Gallery() {
+
+    public Gallery(GalleryWindowController galleryWindowController) {
+        this.galleryWindowController = galleryWindowController;
         this.setLayout(new BorderLayout());
         this.mainDataBase = new GameDataBase();
         this.currentDataBase = mainDataBase;
@@ -86,9 +88,7 @@ public class Gallery extends JPanel {
 
                 // Add an action listener to handle clicks
                 imageButton.addActionListener(e -> {
-                    // TODO: Slot in GalleryWindow.java logic here.
-                    // For example: new GalleryWindow(record);
-                    System.out.println("Clicked image for prompt: " + record.getPrompt());
+                    galleryWindowController.selectGameRecord(record);
                 });
 
                 galleryGridPanel.add(imageButton);
