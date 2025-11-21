@@ -18,7 +18,7 @@ public class GameDataBase implements DataBase {
     public GameDataBase() {
         this.GameData = new ArrayList<>();
         try {
-            List<String> lines = Files.readAllLines(Paths.get("src\\main\\resources\\games.csv"));
+            List<String> lines = Files.readAllLines(Paths.get("src", "main", "resources", "games.csv"));
 
             Iterator<String> iterator = lines.iterator();
             while (iterator.hasNext()) {
