@@ -4,6 +4,7 @@ import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowControl
 import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowPresenter;
 import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowViewModel;
 import com.sketchandguess.usecases.select_game.SelectGameRecordUseCase;
+import com.sketchandguess.database.UserSettingsDataBase;
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,6 +24,8 @@ public class Application extends JFrame {
     private final GalleryWindowViewModel galleryWindowViewModel;
     private final GalleryWindowController galleryWindowController;
 
+    private UserSettingsDataBase userSettingsDataBase;
+    
     public Application() {
         setTitle("Sketch and Guess");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -43,12 +46,14 @@ public class Application extends JFrame {
         GalleryWindowPresenter galleryWindowPresenter = new GalleryWindowPresenter(galleryWindowViewModel);
         SelectGameRecordUseCase selectGameRecordUseCase = new SelectGameRecordUseCase(galleryWindowPresenter);
         galleryWindowController = new GalleryWindowController(selectGameRecordUseCase);
+        
+        userSettingsDataBase = new UserSettingsDataBase();
 
         // Initialize views
         mainMenu = new MainMenu(this);
         game = new Game(this, mockController);
         gallery = new Gallery(galleryWindowController); // Pass the controller to Gallery
-        settings = new Settings();
+        settings = new Settings(this, userSettingsDataBase);
 
         // Add PropertyChangeListener to GalleryWindowViewModel
         galleryWindowViewModel.addPropertyChangeListener(new PropertyChangeListener() {
@@ -64,6 +69,8 @@ public class Application extends JFrame {
             }
         });
 
+        
+        
         // Starting point is main menu
         showMainmenu();
 
@@ -92,11 +99,6 @@ public class Application extends JFrame {
         setContentPane(settings);
         revalidate();
         repaint();
-        // Ensure the gallery view updates when shown
-        if (settings == gallery) { // This condition is likely incorrect, assuming settings and gallery are distinct panels
-            // If gallery is being shown, ensure it updates its view
-            // This might require a method in Gallery to trigger an update
-        }
     }
 
     public static void main(String[] args) {
