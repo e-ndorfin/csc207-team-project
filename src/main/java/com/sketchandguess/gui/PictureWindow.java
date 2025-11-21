@@ -1,9 +1,9 @@
 package com.sketchandguess.gui;
 
-import interface_adapters.picture.PictureViewModel;
-import interface_adapters.picture.GalleryWindowState;
-import interface_adapters.picture.GalleryWindowController;
-import use_case.game.GameRecord;
+import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowController;
+import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowState;
+import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowViewModel;
+import com.sketchandguess.entities.GameRecord;
 
 import javax.swing.*;
 import java.awt.*;

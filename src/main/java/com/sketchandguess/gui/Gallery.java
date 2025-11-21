@@ -1,3 +1,5 @@
+package com.sketchandguess.gui;
+
 import com.sketchandguess.database.GameDataBase;
 import com.sketchandguess.entities.GameRecord;
 import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowController;

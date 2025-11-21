@@ -16,7 +16,7 @@ public class GalleryWindowPresenter implements SelectGameRecordOutputBoundary {
         GalleryWindowState state = viewModel.getState();
         state.setCurrentRecord(record);
         viewModel.setState(state);
-        viewModel.firePropertyChanged();
+        viewModel.firePropertyChange();
     }
 
     @Override
@@ -24,6 +24,6 @@ public class GalleryWindowPresenter implements SelectGameRecordOutputBoundary {
         GalleryWindowState state = viewModel.getState();
         state.setErrorMessage(error);
         viewModel.setState(state);
-        viewModel.firePropertyChanged();
+        viewModel.firePropertyChange();
     }
 }

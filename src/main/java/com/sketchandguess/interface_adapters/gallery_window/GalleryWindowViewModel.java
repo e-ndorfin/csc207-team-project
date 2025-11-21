@@ -25,7 +25,7 @@ public class GalleryWindowViewModel extends ViewModel {
     }
 
     @Override
-    public void firePropertyChanged() {
+    public void firePropertyChange() {
         support.firePropertyChange("state", null, this.state);
     }
 
