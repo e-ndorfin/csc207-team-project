@@ -1,9 +1,10 @@
 package com.sketchandguess.usecases;
-// TODO read up on usecases and invert methods between this/class files if needed
+
 import com.sketchandguess.database.GameDataBase;
 import com.sketchandguess.entities.GameRecord;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 

@@ -26,8 +26,10 @@ public class Gallery extends JPanel {
     private final JButton ClearButton = new JButton("Clear");
     private Map<ImageIcon, GameRecord> IconView;
     private JList RecordList;
-    private DefaultListModel<GameRecord> RecordListModel;
-    private JScrollPane GalleryScrollPane = new JScrollPane();
+    private DefaultListModel<String> RecordListModel;
+    private JScrollPane GalleryScrollPane;
+    //TODO: make it so titles of records with identical prompts will update here accordingly (like apple, apple(1))
+    private Map<String, GameRecord> RecordView = new HashMap<String, GameRecord>();
 
 
     public Gallery() {
@@ -46,11 +48,13 @@ public class Gallery extends JPanel {
         RecordList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         RecordList.setLayoutOrientation(JList.HORIZONTAL_WRAP);
         RecordList.setVisibleRowCount(2);
-        GalleryScrollPane.add(RecordList);
+
+        GalleryScrollPane = new JScrollPane(RecordList);
 
         if (! CurrentDataBase.GameData.isEmpty()) {
             add(GalleryScrollPane, BorderLayout.CENTER);
         }
+        this.UpdateListView();
 
         SearchButton.addActionListener(new ActionListener() {
             @Override
@@ -74,10 +78,12 @@ public class Gallery extends JPanel {
 
     }
     private void UpdateListView() {
-        RecordListModel = new DefaultListModel<GameRecord>();
+        RecordListModel = new DefaultListModel<String>();
+        RecordView = new HashMap<String, GameRecord>();
         if (! CurrentDataBase.GameData.isEmpty()) {
             for (GameRecord G : CurrentDataBase.GameData) {
-                RecordListModel.addElement(G);
+                RecordListModel.addElement(G.getPrompt());
+                RecordView.put(G.getPrompt(), G);
             }
             RecordList = new JList<>(RecordListModel);
         } else {
