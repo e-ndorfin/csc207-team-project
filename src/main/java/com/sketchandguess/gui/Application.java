@@ -1,5 +1,7 @@
 package com.sketchandguess.gui;
 
+import com.sketchandguess.database.UserSettingsDataBase;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -12,6 +14,7 @@ public class Application extends JFrame {
     private Game game;
     private Gallery gallery;
     private Settings settings;
+    private UserSettingsDataBase userSettingsDataBase;
     
     public Application() {
         setTitle("Sketch and Guess");
@@ -28,11 +31,13 @@ public class Application extends JFrame {
             }
         };
         
+        userSettingsDataBase = new UserSettingsDataBase();
+
         // Initialize views
         mainMenu = new MainMenu(this);
         game = new Game(this, mockController);
         gallery = new Gallery();
-        settings = new Settings();
+        settings = new Settings(this, userSettingsDataBase);
         
         // Starting point is main menu
         showMainmenu();
