@@ -2,24 +2,17 @@ package com.sketchandguess.gui;
 
 import com.sketchandguess.database.UserSettingsDataBase;
 import com.sketchandguess.entities.UserSettings;
+import com.sketchandguess.usecases.EditSettingsUseCase;
+import com.sketchandguess.usecases.RetrieveSettingsUseCase;
 
 import javax.swing.*;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import java.awt.*;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
-import javax.swing.JButton;
-import javax.swing.SwingConstants;
-
-import java.awt.BorderLayout;
-import java.awt.GridLayout;
-import java.awt.FlowLayout;
-import java.awt.Color;
-import java.awt.Font;
-
 
 /**
- * Settings screen: lets the user change the default game time limit.
+ * Settings screen: lets the user change the default game time limit
+ * and difficulty (Easy / Medium / Hard).
  */
 public class Settings extends JPanel {
 
@@ -28,13 +21,31 @@ public class Settings extends JPanel {
 
     private final Application app;
     private final UserSettingsDataBase userSettingsDataBase;
+    private final EditSettingsUseCase editSettingsUseCase;
+    private final RetrieveSettingsUseCase retrieveSettingsUseCase;
 
-    private final JTextField timeLimitField;
+    // Timer slider + numeric label
+    private final JSlider timeSlider;
+    private final JLabel timeValueLabel;
+
+    // Difficulty buttons
+    private final JToggleButton easyButton;
+    private final JToggleButton mediumButton;
+    private final JToggleButton hardButton;
+
     private final JLabel messageLabel;
 
+    /**
+     * Constructs the Settings panel.
+     *
+     * @param app                  the main Application, used to navigate back
+     * @param userSettingsDataBase the database storing user settings
+     */
     public Settings(Application app, UserSettingsDataBase userSettingsDataBase) {
         this.app = app;
         this.userSettingsDataBase = userSettingsDataBase;
+        this.editSettingsUseCase = new EditSettingsUseCase(userSettingsDataBase);
+        this.retrieveSettingsUseCase = new RetrieveSettingsUseCase(userSettingsDataBase);
 
         setLayout(new BorderLayout(10, 10));
 
@@ -43,22 +54,63 @@ public class Settings extends JPanel {
         titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 20f));
         add(titleLabel, BorderLayout.NORTH);
 
-        // ---------- Center panel: time limit field ----------
-        JPanel centerPanel = new JPanel(new GridLayout(2, 2, 5, 5));
+        // ---------- Center panel ----------
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new GridLayout(2, 1, 10, 10));
+
+        // ===== Time limit row =====
+        JPanel timePanel = new JPanel(new BorderLayout(5, 5));
 
         JLabel timeLimitLabel = new JLabel("Default Time Limit (seconds):");
-        timeLimitField = new JTextField(10);
+        timePanel.add(timeLimitLabel, BorderLayout.NORTH);
 
-        centerPanel.add(timeLimitLabel);
-        centerPanel.add(timeLimitField);
+        timeSlider = new JSlider(MIN_TIME_LIMIT, MAX_TIME_LIMIT);
+        timeSlider.setMajorTickSpacing(30);
+        timeSlider.setMinorTickSpacing(10);
+        timeSlider.setPaintTicks(true);
+        timeSlider.setPaintLabels(true);
 
-        // empty cells to keep layout simple
-        centerPanel.add(new JLabel(""));
-        centerPanel.add(new JLabel(""));
+        timeValueLabel = new JLabel("", SwingConstants.CENTER);
+
+        timeSlider.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                int value = timeSlider.getValue();
+                timeValueLabel.setText(value + " s");
+            }
+        });
+
+        timePanel.add(timeSlider, BorderLayout.CENTER);
+        timePanel.add(timeValueLabel, BorderLayout.SOUTH);
+
+        // ===== Difficulty row =====
+        JPanel difficultyPanel = new JPanel(new BorderLayout(5, 5));
+        JLabel difficultyLabel = new JLabel("Difficulty:");
+        difficultyPanel.add(difficultyLabel, BorderLayout.NORTH);
+
+        JPanel difficultyButtonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+
+        easyButton = new JToggleButton("Easy");
+        mediumButton = new JToggleButton("Medium");
+        hardButton = new JToggleButton("Hard");
+
+        ButtonGroup difficultyGroup = new ButtonGroup();
+        difficultyGroup.add(easyButton);
+        difficultyGroup.add(mediumButton);
+        difficultyGroup.add(hardButton);
+
+        difficultyButtonsPanel.add(easyButton);
+        difficultyButtonsPanel.add(mediumButton);
+        difficultyButtonsPanel.add(hardButton);
+
+        difficultyPanel.add(difficultyButtonsPanel, BorderLayout.CENTER);
+
+        centerPanel.add(timePanel);
+        centerPanel.add(difficultyPanel);
 
         add(centerPanel, BorderLayout.CENTER);
 
-        // ---------- Bottom panel: buttons + message ----------
+        // ---------- Bottom panel ----------
         JPanel bottomPanel = new JPanel(new BorderLayout());
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
@@ -75,55 +127,70 @@ public class Settings extends JPanel {
 
         add(bottomPanel, BorderLayout.SOUTH);
 
-        // Load current settings into the text field
+        // Load initial values using the use case
         loadCurrentSettings();
 
-        // ---------- Listeners ----------
+        // Listeners
         saveButton.addActionListener(e -> onSaveClicked());
         backButton.addActionListener(e -> app.showMainmenu());
     }
 
     /**
-     * Reads the current settings from the "database"
-     * and shows the default time limit in the text field.
+     * Reads the current settings using the RetrieveSettingsUseCase
+     * and initializes the controls.
      */
     private void loadCurrentSettings() {
-        UserSettings settings = userSettingsDataBase.getUserSettings();
+        UserSettings settings = retrieveSettingsUseCase.retrieveSettings();
+
+        // --- Time limit ---
         int timeLimit = (int) Math.round(settings.getDefaultTimeLimit());
-        timeLimitField.setText(String.valueOf(timeLimit));
+        if (timeLimit < MIN_TIME_LIMIT) {
+            timeLimit = MIN_TIME_LIMIT;
+        } else if (timeLimit > MAX_TIME_LIMIT) {
+            timeLimit = MAX_TIME_LIMIT;
+        }
+        timeSlider.setValue(timeLimit);
+        timeValueLabel.setText(timeLimit + " s");
+
+        // --- Difficulty (stored as a String in UserSettings) ---
+        String difficultyName = settings.getDifficultyName(); // may be null if not set yet
+
+        if (difficultyName == null) {
+            mediumButton.setSelected(true); // default
+        } else if (difficultyName.equalsIgnoreCase("easy")) {
+            easyButton.setSelected(true);
+        } else if (difficultyName.equalsIgnoreCase("hard")) {
+            hardButton.setSelected(true);
+        } else {
+            mediumButton.setSelected(true);
+        }
     }
 
     /**
      * Handles clicking the Save button.
-     * Validates the input and either saves or shows an error.
+     * Uses EditSettingsUseCase to validate and save.
      */
     private void onSaveClicked() {
-        String text = timeLimitField.getText().trim();
+        int requested = timeSlider.getValue();
+
+        String newDifficultyName;
+        if (easyButton.isSelected()) {
+            newDifficultyName = "easy";
+        } else if (hardButton.isSelected()) {
+            newDifficultyName = "hard";
+        } else {
+            newDifficultyName = "medium";
+        }
 
         try {
-            int requested = Integer.parseInt(text);
-
-            if (requested < MIN_TIME_LIMIT || requested > MAX_TIME_LIMIT) {
-                messageLabel.setForeground(Color.RED);
-                messageLabel.setText(
-                        "Time limit must be between " + MIN_TIME_LIMIT + " and " + MAX_TIME_LIMIT + " seconds."
-                );
-                // revert to previous valid value
-                loadCurrentSettings();
-                return;
-            }
-
-            // Valid value: save to our "database"
-            UserSettings settings = userSettingsDataBase.getUserSettings();
-            settings.setDefaultTimeLimit(requested);
-            userSettingsDataBase.saveUserSettings(settings);
-
+            editSettingsUseCase.editSettings(requested, newDifficultyName);
             messageLabel.setForeground(new Color(0, 128, 0)); // dark green
-            messageLabel.setText("Time limit updated successfully.");
-
-        } catch (NumberFormatException ex) {
+            messageLabel.setText("Settings updated successfully.");
+        } catch (IllegalArgumentException ex) {
             messageLabel.setForeground(Color.RED);
-            messageLabel.setText("Please enter a whole number of seconds.");
+            messageLabel.setText(ex.getMessage());
+            // reload previous valid settings
+            loadCurrentSettings();
         }
     }
 }

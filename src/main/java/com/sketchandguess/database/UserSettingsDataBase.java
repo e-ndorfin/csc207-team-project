@@ -3,20 +3,51 @@ package com.sketchandguess.database;
 import com.sketchandguess.entities.UserSettings;
 
 /**
- * TEMP implementation – just keeps settings in memory.
- * Your teammate can later change this to read/write a file.
+ * Simple in-memory "database" that stores the current user's settings.
  */
 public class UserSettingsDataBase {
 
-    // For now we just keep one global settings object in memory
-    private static UserSettings currentSettings =
-            new UserSettings("default-user", 60, "png");  // default 60 seconds
+    private UserSettings currentSettings;
 
+    /**
+     * Creates a new UserSettingsDataBase with default settings.
+     */
+    public UserSettingsDataBase() {
+        // default values for a new user
+        String defaultUserId = "default-user";
+        double defaultTimeLimit = 60;      // 60 seconds default
+        String defaultExportFormat = "png";
+
+        this.currentSettings =
+                new UserSettings(defaultUserId, defaultTimeLimit, defaultExportFormat);
+    }
+
+    /**
+     * Optionally allow providing initial settings.
+     */
+    public UserSettingsDataBase(UserSettings initialSettings) {
+        if (initialSettings == null) {
+            throw new IllegalArgumentException("initialSettings cannot be null.");
+        }
+        this.currentSettings = initialSettings;
+    }
+
+    /**
+     * Returns the current UserSettings object.
+     */
     public UserSettings getUserSettings() {
         return currentSettings;
     }
 
+    /**
+     * Saves the given UserSettings as the current settings.
+     *
+     * @param settings the new settings; must not be null
+     */
     public void saveUserSettings(UserSettings settings) {
-        currentSettings = settings;
+        if (settings == null) {
+            throw new IllegalArgumentException("UserSettings cannot be null.");
+        }
+        this.currentSettings = settings;
     }
 }
