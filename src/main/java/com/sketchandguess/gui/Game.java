@@ -28,14 +28,23 @@ public class Game extends JPanel {
     private javax.swing.Timer countdownTimer;
     private DrawingCanvas canvas;
 
+    private Cursor pencilCursor;
+    private Cursor eraserCursor;
+    private Cursor currentToolCursor = null;
+
+    private enum Tool { NONE, PEN, ERASER }
+    private Tool currentTool = Tool.NONE;
+
     public Game(Application app, RecordGameController controller) {
         this.app = app;
         this.controller = controller;
         setLayout(new BorderLayout());
         canvas = new DrawingCanvas();
+        add(canvas, BorderLayout.CENTER);
 
         JPanel rightPanel = new JPanel(new BorderLayout());
-        JPanel topright = new JPanel(new GridLayout(2, 1)); // for prompt and timer
+        JPanel topright = new JPanel(new GridLayout(3, 1)); // for prompt and timer
+
         promptLabel = new JLabel("Prompt: "); // using setprompttext update
         timerLabel = new JLabel("Time left: "); // using settimetext update
         difficultyLabel = new JLabel("Difficulty: "); // using setdifficultytext update
@@ -44,8 +53,8 @@ public class Game extends JPanel {
         topright.add(timerLabel);
         topright.add(difficultyLabel);
         rightPanel.add(topright, BorderLayout.NORTH);
-        JPanel bottomright = new JPanel(new GridLayout(5, 1, 10, 10)); //button area
 
+        JPanel bottomright = new JPanel(new GridLayout(5, 1, 10, 10)); //button area
         JButton doneButton = new JButton("Done");
         JButton backButton = new JButton("Back");
         JButton clearButton = new JButton("Clear");
@@ -57,22 +66,73 @@ public class Game extends JPanel {
         bottomright.add(doneButton);
         bottomright.add(eraserButton);
         bottomright.add(penButton);
-
         rightPanel.add(bottomright, BorderLayout.SOUTH);
+
+        rightPanel.setPreferredSize(new Dimension(250, 0));
+        add(rightPanel, BorderLayout.EAST);
 
         doneButton.addActionListener(e -> {
             BufferedImage image = canvas.exportImage();
             controller.onDoneButtonClicked(image);
+            stopCountdown();
+            resetTool();
             app.showGameResult();
         });
-        backButton.addActionListener(e -> app.showMainmenu());
-        clearButton.addActionListener(e -> canvas.clearCanvas());
-        penButton.addActionListener(e -> {canvas.setBrushColor(Color.BLACK); canvas.setBrushSize(4);});
-        eraserButton.addActionListener(e -> {canvas.setBrushColor(Color.WHITE); canvas.setBrushSize(10);});
 
-        rightPanel.setPreferredSize(new Dimension(250, 0));
-        add(canvas, BorderLayout.CENTER);
-        add(rightPanel, BorderLayout.EAST);
+        backButton.addActionListener(e -> {
+            stopCountdown();
+            resetCompletely();
+            app.showMainmenu();}
+        );
+
+        clearButton.addActionListener(e -> {
+            canvas.clearCanvas();
+            resetTool();
+        });
+
+        penButton.addActionListener(e -> {
+            currentTool = Tool.PEN;
+            currentToolCursor = getPencilCursor();
+            canvas.setCursor(currentToolCursor);
+        });
+
+        eraserButton.addActionListener(e -> {
+            currentTool = Tool.ERASER;
+            currentToolCursor = getEraserCursor();
+            canvas.setCursor(currentToolCursor);
+        });
+        resetTool();
+    }
+
+    private Cursor createCursor(String path, String name) {
+        Image img = new ImageIcon(getClass().getResource(path)).getImage();
+        int size = 32;
+        Image scaled = img.getScaledInstance(size, size, Image.SCALE_SMOOTH);
+        Point hotSpot = new Point(0, size-1);
+        return Toolkit.getDefaultToolkit().createCustomCursor(scaled, hotSpot, name);
+    }
+
+    private Cursor getPencilCursor() {
+        if (pencilCursor == null) {
+            pencilCursor = createCursor("/cursors/pencil.png", "pencil");
+            }
+            return pencilCursor;
+    }
+
+    private Cursor getEraserCursor() {
+            if (eraserCursor == null) {
+                eraserCursor = createCursor("/cursors/eraser.png", "eraser");
+            }
+            return eraserCursor;
+        }
+
+    public void resetTool(){
+            currentTool = Tool.NONE;
+            currentToolCursor = null;
+            if (canvas != null) {
+            canvas.resetBrush();
+            canvas.setCursor(Cursor.getDefaultCursor());
+        }
     }
 
     /** update prompt */
@@ -107,7 +167,11 @@ public class Game extends JPanel {
             }
         });
     }
-
+    private void stopCountdown() {
+        if (countdownTimer != null) {
+            countdownTimer.stop();
+        }
+    }
 
     public void startCountdown() {
         if (countdownTimer != null && !countdownTimer.isRunning()) {
@@ -119,14 +183,43 @@ public class Game extends JPanel {
         this.timeLimitSeconds = seconds;
         this.timeLeftSeconds = seconds;
         updateTimerLabel();
+
+        if (countdownTimer != null) {
+            initCountdownTimer();
+        }
+        updateTimerLabel();
     }
 
     private void updateTimerLabel() {
         timerLabel.setText("Time left: " + (int) Math.ceil(timeLeftSeconds) + " s");
     }
 
+    public void resetCompletely(){
+        canvas.clearCanvas();
+        resetTool();
+        timeLimitSeconds = 0;
+        timeLeftSeconds = 0;
+        promptLabel.setText("Prompt: ");
+        difficultyLabel.setText("Difficulty: ");
+        timerLabel.setText("Timer: ");
+    }
 
-    private static class DrawingCanvas extends JPanel {
+    public void resetForNewGame(){
+        clearCanvas();
+        resetTool();
+    }
+
+    public void resetForRetry(){
+        canvas.clearCanvas();
+        resetTool();
+        timeLeftSeconds = timeLimitSeconds;
+        updateTimerLabel();
+        startCountdown();
+    }
+
+
+
+    private class DrawingCanvas extends JPanel {
 
         private final List<List<Point>> strokes = new ArrayList<>();
         private final List<Color> strokeColors = new ArrayList<>();
@@ -138,10 +231,37 @@ public class Game extends JPanel {
 
         public DrawingCanvas() {
             setBackground(Color.WHITE);
-
             addMouseListener(new MouseAdapter() {
                 @Override
+                public void mouseEntered(MouseEvent e) {
+                    if (currentToolCursor != null){
+                        setCursor(currentToolCursor);
+                    } else{
+                        setCursor(Cursor.getDefaultCursor());
+                    }
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                }
+
+                @Override
                 public void mousePressed(MouseEvent e) {
+                    switch (currentTool) {
+                        case PEN -> {
+                            brushColor = Color.BLACK;
+                            brushSize = 4;
+                        }
+                        case ERASER -> {
+                            brushColor = Color.WHITE;
+                            brushSize = 10;
+                        }
+                        case NONE -> {
+                            return;
+                        }
+                    }
+
                     currentStroke = new ArrayList<>();
                     currentStroke.add(e.getPoint());
                     strokes.add(currentStroke);
@@ -190,6 +310,8 @@ public class Game extends JPanel {
 
         public void clearCanvas() {
             strokes.clear();
+            strokeColors.clear();
+            strokeSizes.clear();
             repaint();
         }
 
@@ -210,6 +332,10 @@ public class Game extends JPanel {
 
         public void setBrushSize(int size) {
             this.brushSize = size;
+        }
+        public  void resetBrush(){
+            this.brushColor = Color.BLACK;
+            this.brushSize = 3;
         }
     }
 }

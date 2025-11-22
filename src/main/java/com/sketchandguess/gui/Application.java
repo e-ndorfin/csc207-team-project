@@ -41,7 +41,18 @@ public class Application extends JFrame {
         
         setVisible(true);
     }
-    
+
+    public void startNewGame() {
+        game.resetCompletely();
+//        recordGame.controller.startNewGame();
+        showGame();
+    }
+
+    public void retryGame() {
+        game.resetForRetry();
+        showGame();
+    }
+
     public void showMainmenu() {
         setContentPane(mainMenu);
         revalidate();
@@ -71,6 +82,11 @@ public class Application extends JFrame {
         revalidate();
         repaint();
     }
+
+    public Game getGamePanel() {
+        return game;
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             @Override

@@ -7,40 +7,52 @@ import javax.swing.JLabel;
 public class GameResult extends JPanel {
 
     private final Application app;   // to switch screens
+    private final JLabel titleLabel;
     private final JLabel promptLabel;
     private final JLabel aiGuessLabel;
     private final JLabel timeTakenLabel;
-    private final JLabel reasonLabel;
-    private final JLabel resultMessage;
+    private final JLabel imageLabel;
 
     public GameResult(Application app) {
         this.app = app;
-        setLayout(new BorderLayout());
+        setLayout(new BorderLayout(10,10));
+        setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
 
-        JLabel title = new JLabel("Game Result", SwingConstants.CENTER);
-        title.setFont(title.getFont().deriveFont(Font.BOLD, 24f));
-        add(title, BorderLayout.NORTH);
+        titleLabel = new JLabel("Game Result", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 34));
+        add(titleLabel, BorderLayout.NORTH);
 
-        JPanel centerPanel = new JPanel(new GridLayout(4, 1, 0, 8));
+        //left side: image
+        JPanel centerPanel = new JPanel(new GridLayout(1, 2, 15, 0));
+        imageLabel = new JLabel();
+        imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
+        imageLabel.setVerticalAlignment(SwingConstants.CENTER);
+        imageLabel.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        centerPanel.add(imageLabel);
+
+        //right side
+        JPanel infoPanel = new JPanel();
+        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
 
         promptLabel = new JLabel("Prompt: ");
         aiGuessLabel = new JLabel("AI Guess: ");
         timeTakenLabel = new JLabel("Time Taken: ");
-        reasonLabel = new JLabel("Reason: "); // “Time ran out” / “AI guess wrong”
 
-        centerPanel.add(promptLabel);
-        centerPanel.add(aiGuessLabel);
-        centerPanel.add(timeTakenLabel);
-        centerPanel.add(reasonLabel);
 
+        infoPanel.add(promptLabel);
+        infoPanel.add(Box.createVerticalStrut(8));
+        infoPanel.add(aiGuessLabel);
+        infoPanel.add(Box.createVerticalStrut(8));
+        infoPanel.add(timeTakenLabel);
+
+        centerPanel.add(infoPanel);
         add(centerPanel, BorderLayout.CENTER);
-
-        resultMessage = new JLabel("You win! / You lose!", SwingConstants.CENTER);
-        add(resultMessage, BorderLayout.SOUTH);
 
         JPanel bottomPanel = new JPanel();
         JButton retryButton = new JButton("Retry");
-        retryButton.addActionListener(e -> app.showGame());
+        retryButton.addActionListener(e -> {
+            app.retryGame();
+        });
         JButton backButton = new JButton("Back to Menu");
         backButton.addActionListener(e -> app.showMainmenu());
         bottomPanel.add(retryButton);
