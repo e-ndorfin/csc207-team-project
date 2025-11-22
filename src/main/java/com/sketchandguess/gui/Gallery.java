@@ -22,6 +22,7 @@ public class Gallery extends JPanel {
     private final JPanel searchBar = new JPanel();
     private final JButton searchButton = new JButton("Search");
     private final JButton clearButton = new JButton("Clear");
+    private final JButton backButton = new JButton("Back to Main Menu"); // New back button
     private final JPanel galleryGridPanel;
     private final JScrollPane galleryScrollPane;
     private final JPanel centerPanel = new JPanel(new CardLayout());
@@ -36,10 +37,17 @@ public class Gallery extends JPanel {
         this.mainDataBase = new GameDataBase();
         this.currentDataBase = mainDataBase;
 
-        this.searchBar.add(searchBarField);
-        this.searchBar.add(searchButton);
-        this.searchBar.add(clearButton);
-        add(searchBar, BorderLayout.NORTH);
+        JPanel topControlsPanel = new JPanel(new BorderLayout()); // Panel to hold back button and search bar
+
+        JPanel searchPanel = new JPanel(); // Original search bar panel
+        searchPanel.add(searchBarField);
+        searchPanel.add(searchButton);
+        searchPanel.add(clearButton);
+
+        topControlsPanel.add(backButton, BorderLayout.WEST); // Add back button to the left
+        topControlsPanel.add(searchPanel, BorderLayout.CENTER); // Add search bar to the center
+
+        add(topControlsPanel, BorderLayout.NORTH); // Add the combined top panel to the frame
 
         galleryGridPanel = new JPanel(new GridLayout(0, 3, 10, 10));
         galleryScrollPane = new JScrollPane(galleryGridPanel);
@@ -64,6 +72,10 @@ public class Gallery extends JPanel {
                 currentDataBase = mainDataBase;
                 updateGalleryView();
             }
+        });
+
+        backButton.addActionListener(e -> {
+            galleryWindowController.goBackToMainMenu();
         });
     }
     private void updateGalleryView() {

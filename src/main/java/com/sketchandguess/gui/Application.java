@@ -5,6 +5,7 @@ import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowPresent
 import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowViewModel;
 import com.sketchandguess.usecases.select_game.SelectGameRecordUseCase;
 import com.sketchandguess.database.UserSettingsDataBase;
+import com.sketchandguess.interface_adapters.ViewManagerModel; // Import ViewManagerModel
 
 import javax.swing.*;
 import java.awt.*;
@@ -23,6 +24,7 @@ public class Application extends JFrame {
 
     private final GalleryWindowViewModel galleryWindowViewModel;
     private final GalleryWindowController galleryWindowController;
+    private final ViewManagerModel viewManagerModel; // Declare ViewManagerModel
 
     private UserSettingsDataBase userSettingsDataBase;
     
@@ -41,11 +43,14 @@ public class Application extends JFrame {
             }
         };
 
+        // Initialize ViewManagerModel
+        viewManagerModel = new ViewManagerModel(); // Instantiate ViewManagerModel
+
         // Initialize GalleryWindow components
         galleryWindowViewModel = new GalleryWindowViewModel();
         GalleryWindowPresenter galleryWindowPresenter = new GalleryWindowPresenter(galleryWindowViewModel);
         SelectGameRecordUseCase selectGameRecordUseCase = new SelectGameRecordUseCase(galleryWindowPresenter);
-        galleryWindowController = new GalleryWindowController(selectGameRecordUseCase);
+        galleryWindowController = new GalleryWindowController(selectGameRecordUseCase, viewManagerModel); // Pass viewManagerModel
         
         userSettingsDataBase = new UserSettingsDataBase();
 
@@ -69,7 +74,30 @@ public class Application extends JFrame {
             }
         });
 
-        
+        // Add PropertyChangeListener to ViewManagerModel for view switching
+        viewManagerModel.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (evt.getPropertyName().equals("view")) {
+                    String activeView = (String) evt.getNewValue();
+                    switch (activeView) {
+                        case "MainMenu":
+                            showMainmenu();
+                            break;
+                        case "Game":
+                            showGame();
+                            break;
+                        case "Gallery":
+                            showGallery();
+                            break;
+                        case "Settings":
+                            showSettings();
+                            break;
+                        // Add other cases as needed
+                    }
+                }
+            }
+        });
         
         // Starting point is main menu
         showMainmenu();
