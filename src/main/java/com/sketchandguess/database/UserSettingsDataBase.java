@@ -2,52 +2,69 @@ package com.sketchandguess.database;
 
 import com.sketchandguess.entities.UserSettings;
 
+import java.util.prefs.Preferences;
+
 /**
- * Simple in-memory "database" that stores the current user's settings.
+ * Singleton + persistent UserSettings database.
+ * Uses Java Preferences to store settings between app runs.
  */
 public class UserSettingsDataBase {
 
+    // ---- Singleton instance ----
+    private static final UserSettingsDataBase INSTANCE = new UserSettingsDataBase();
+
+    public static UserSettingsDataBase getInstance() {
+        return INSTANCE;
+    }
+
+    // ---- Persistence ----
+    private static final String PREF_NODE = "com.sketchandguess.settings";
+    private static final String KEY_USER_ID = "userId";
+    private static final String KEY_TIME_LIMIT = "defaultTimeLimit";
+    private static final String KEY_EXPORT = "defaultExportFormat";
+    private static final String KEY_DIFFICULTY = "difficultyName";
+
+    private final Preferences prefs;
     private UserSettings currentSettings;
 
-    /**
-     * Creates a new UserSettingsDataBase with default settings.
-     */
-    public UserSettingsDataBase() {
-        // default values for a new user
-        String defaultUserId = "default-user";
-        double defaultTimeLimit = 60;      // 60 seconds default
-        String defaultExportFormat = "png";
-
-        this.currentSettings =
-                new UserSettings(defaultUserId, defaultTimeLimit, defaultExportFormat);
+    // private constructor (singleton)
+    private UserSettingsDataBase() {
+        prefs = Preferences.userRoot().node(PREF_NODE);
+        loadFromPrefs();
     }
 
     /**
-     * Optionally allow providing initial settings.
+     * Load stored settings (or defaults if none stored yet).
      */
-    public UserSettingsDataBase(UserSettings initialSettings) {
-        if (initialSettings == null) {
-            throw new IllegalArgumentException("initialSettings cannot be null.");
-        }
-        this.currentSettings = initialSettings;
+    private void loadFromPrefs() {
+        String userId = prefs.get(KEY_USER_ID, "default-user");
+        double timeLimit = prefs.getDouble(KEY_TIME_LIMIT, 60);
+        String exportFormat = prefs.get(KEY_EXPORT, "png");
+        String difficulty = prefs.get(KEY_DIFFICULTY, "medium");
+
+        currentSettings = new UserSettings(userId, timeLimit, exportFormat);
+        currentSettings.setDifficultyName(difficulty);
     }
 
     /**
-     * Returns the current UserSettings object.
+     * Save currentSettings into Preferences.
      */
+    private void saveToPrefs() {
+        prefs.put(KEY_USER_ID, currentSettings.getUserId());
+        prefs.putDouble(KEY_TIME_LIMIT, currentSettings.getDefaultTimeLimit());
+        prefs.put(KEY_EXPORT, currentSettings.getDefaultExportFormat());
+        prefs.put(KEY_DIFFICULTY, currentSettings.getDifficultyName());
+    }
+
     public UserSettings getUserSettings() {
         return currentSettings;
     }
 
-    /**
-     * Saves the given UserSettings as the current settings.
-     *
-     * @param settings the new settings; must not be null
-     */
     public void saveUserSettings(UserSettings settings) {
         if (settings == null) {
             throw new IllegalArgumentException("UserSettings cannot be null.");
         }
-        this.currentSettings = settings;
+        currentSettings = settings;
+        saveToPrefs(); // <-- persist
     }
 }
