@@ -1,6 +1,6 @@
 package com.sketchandguess.gui;
 
-import interface_adapters.picture.PictureViewModel;
+import interface_adapters.picture.GalleryWindowViewModel;
 import interface_adapters.picture.GalleryWindowState;
 import interface_adapters.picture.GalleryWindowController;
 import use_case.game.GameRecord;
