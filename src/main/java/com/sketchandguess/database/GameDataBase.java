@@ -1,11 +1,13 @@
 package com.sketchandguess.database;
 
+import com.sketchandguess.entities.Difficulty;
 import com.sketchandguess.entities.GameRecord;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.LocalDate;
 import java.util.*;
 
 public class GameDataBase implements DataBase {
@@ -16,13 +18,13 @@ public class GameDataBase implements DataBase {
     public GameDataBase() {
         this.GameData = new ArrayList<>();
         try {
-            List<String> lines = Files.readAllLines(Paths.get("src\\main\\resources\\games.csv"));
+            List<String> lines = Files.readAllLines(Paths.get("src", "main", "resources", "games.csv"));
 
             Iterator<String> iterator = lines.iterator();
             while (iterator.hasNext()) {
                 String line = iterator.next();
-                String[] parts = line.split(",");
-                GameRecord currentGame = new GameRecord(); // TODO: implement this once gameRecord constructor is implemented
+                ArrayList<String> parts = new ArrayList<>(Arrays.asList(line.split(",")));
+                GameRecord currentGame = ConvertToRecord(parts); // TODO: implement this once gameRecord constructor is implemented
                 GameData.add(currentGame);
             }
         }
@@ -52,6 +54,17 @@ public class GameDataBase implements DataBase {
         return new GameDataBase(Matches);
     }
 
+    private GameRecord ConvertToRecord(ArrayList<String> data) {
+        return new GameRecord(data.get(0),
+        LocalDate.parse(data.get(1)),
+        Boolean.parseBoolean(data.get(2)),
+        Double.parseDouble(data.get(3)),
+        Double.parseDouble(data.get(4)),
+                        new Difficulty(data.get(5)),
+                                data.get(6)
+
+        );
+    }
     public Boolean DeleteGame(GameRecord DeletedGame) {
         try {
             this.GameData.remove(DeletedGame);
@@ -61,4 +74,3 @@ public class GameDataBase implements DataBase {
         }
         }
     }
-}
