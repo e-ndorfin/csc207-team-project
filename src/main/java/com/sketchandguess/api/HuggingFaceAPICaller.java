@@ -20,9 +20,9 @@ public class HuggingFaceAPICaller implements APICaller {
     @Override
     public String call(byte[] imageData) throws IOException, InterruptedException {
         String boundary = "Boundary-" + UUID.randomUUID().toString();
+        
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(apiHandler.getInferenceUrl()))
-                .header("Authorization", "Bearer " + apiHandler.getApiKey())
                 .header("Content-Type", "multipart/form-data;boundary=" + boundary)
                 .POST(ofMimeMultipartData(imageData, boundary))
                 .build();
@@ -39,15 +39,17 @@ public class HuggingFaceAPICaller implements APICaller {
 
     private HttpRequest.BodyPublisher ofMimeMultipartData(byte[] imageData, String boundary) {
         List<byte[]> byteArrays = new ArrayList<>();
+        String CRLF = "\r\n";
 
-        String partHeader = "--" + boundary + "\n" +
-                "Content-Disposition: form-data; name=\"file\"; filename=\"image.png\"\n" +
-                "Content-Type: image/png\n\n";
+        String partHeader = "--" + boundary + CRLF +
+                "Content-Disposition: form-data; name=\"file\"; filename=\"image.png\"" + CRLF +
+                "Content-Type: image/png" + CRLF + CRLF;
+        
         byteArrays.add(partHeader.getBytes(StandardCharsets.UTF_8));
         byteArrays.add(imageData);
-        byteArrays.add("\n".getBytes(StandardCharsets.UTF_8));
+        byteArrays.add(CRLF.getBytes(StandardCharsets.UTF_8));
 
-        String partFooter = "--" + boundary + "--\n";
+        String partFooter = "--" + boundary + "--" + CRLF;
         byteArrays.add(partFooter.getBytes(StandardCharsets.UTF_8));
 
         return HttpRequest.BodyPublishers.ofByteArrays(byteArrays);
