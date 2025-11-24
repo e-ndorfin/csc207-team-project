@@ -1,31 +1,36 @@
 package com.sketchandguess.interface_adapters.gallery_window;
 
-public class GalleryWindowViewModel {
-    private String imagePath;
-    private String prompt;
-    private String errorMessage;
+import com.sketchandguess.interface_adapters.ViewModel;
 
-    public String getImagePath() {
-        return imagePath;
+import java.beans.PropertyChangeListener;
+import java.beans.PropertyChangeSupport;
+
+public class GalleryWindowViewModel extends ViewModel {
+
+    public static final String VIEW_NAME = "gallery_window";
+    private GalleryWindowState state = new GalleryWindowState();
+
+    private final PropertyChangeSupport support = new PropertyChangeSupport(this);
+
+    public GalleryWindowViewModel() {
+        super(VIEW_NAME);
     }
 
-    public void setImagePath(String imagePath) {
-        this.imagePath = imagePath;
+    public void setState(GalleryWindowState state) {
+        this.state = state;
     }
 
-    public String getPrompt() {
-        return prompt;
+    public GalleryWindowState getState() {
+        return state;
     }
 
-    public void setPrompt(String prompt) {
-        this.prompt = prompt;
+    @Override
+    public void firePropertyChange() {
+        support.firePropertyChange("state", null, this.state);
     }
 
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
+    @Override
+    public void addPropertyChangeListener(PropertyChangeListener listener) {
+        support.addPropertyChangeListener(listener);
     }
 }

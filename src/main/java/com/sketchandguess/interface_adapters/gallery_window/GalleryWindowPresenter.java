@@ -1,27 +1,29 @@
 package com.sketchandguess.interface_adapters.gallery_window;
 
 import com.sketchandguess.entities.GameRecord;
+import com.sketchandguess.usecases.select_game.SelectGameRecordOutputBoundary;
 
-public class GalleryWindowPresenter {
+public class GalleryWindowPresenter implements SelectGameRecordOutputBoundary {
+
     private final GalleryWindowViewModel viewModel;
 
     public GalleryWindowPresenter(GalleryWindowViewModel viewModel) {
         this.viewModel = viewModel;
     }
 
-    public void presentRecord(GameRecord record) {
-        if (record == null) {
-            viewModel.setImagePath(null);
-            viewModel.setPrompt("No record selected");
-            viewModel.setErrorMessage("");
-            return;
-        }
-        viewModel.setImagePath(record.getImagePath());
-        viewModel.setPrompt(record.getPrompt());
-        viewModel.setErrorMessage("");
+    @Override
+    public void prepareSuccessView(GameRecord record) {
+        GalleryWindowState state = viewModel.getState();
+        state.setCurrentRecord(record);
+        viewModel.setState(state);
+        viewModel.firePropertyChange();
     }
 
-    public void presentError(String message) {
-        viewModel.setErrorMessage(message);
+    @Override
+    public void prepareFailView(String error) {
+        GalleryWindowState state = viewModel.getState();
+        state.setErrorMessage(error);
+        viewModel.setState(state);
+        viewModel.firePropertyChange();
     }
 }
