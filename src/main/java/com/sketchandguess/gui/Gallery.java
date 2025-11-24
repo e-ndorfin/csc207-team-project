@@ -1,7 +1,9 @@
 package com.sketchandguess.gui;
 
 import com.sketchandguess.database.GameDataBase;
+import com.sketchandguess.database.SearchObject;
 import com.sketchandguess.entities.GameRecord;
+import com.sketchandguess.interface_adapters.gallery.GalleryDatabaseInteractor;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,37 +12,31 @@ import java.awt.event.ActionListener;
 
 // TODO ensure this does not call usecase methods, if it does, use a controller
 public class Gallery extends JPanel {
-    private final String viewName = "Drawing Gallery";
-    private final String emptyGallery = "No Pictures Found";
     // this database represents the "main" database of images we are drawing from; it will be the database shown by default
-    public final GameDataBase mainDataBase;
+    public GalleryDatabaseInteractor mainDataBase;
     // this database represents the current database being shown. Usually, this is the MainDataBase, but it will change when the search bar is used.
-    public GameDataBase currentDataBase;
-
     private final JTextField searchBarField = new JTextField(15);
-    private final JPanel searchBar = new JPanel();
-    private final JButton searchButton = new JButton("Search");
-    private final JButton clearButton = new JButton("Clear");
     private final JPanel galleryGridPanel;
-    private final JScrollPane galleryScrollPane;
     private final JPanel centerPanel = new JPanel(new CardLayout());
-    private final JLabel emptyLabel = new JLabel(emptyGallery, SwingConstants.CENTER);
 
 
     public Gallery() {
         this.setLayout(new BorderLayout());
-        this.mainDataBase = new GameDataBase();
-        this.currentDataBase = mainDataBase;
-
-        this.searchBar.add(searchBarField);
-        this.searchBar.add(searchButton);
-        this.searchBar.add(clearButton);
+        this.mainDataBase = new GalleryDatabaseInteractor();
+        JPanel searchBar = new JPanel();
+        searchBar.add(searchBarField);
+        JButton searchButton = new JButton("Search");
+        searchBar.add(searchButton);
+        JButton clearButton = new JButton("Clear");
+        searchBar.add(clearButton);
         add(searchBar, BorderLayout.NORTH);
 
         galleryGridPanel = new JPanel(new GridLayout(0, 3, 10, 10));
-        galleryScrollPane = new JScrollPane(galleryGridPanel);
+        JScrollPane galleryScrollPane = new JScrollPane(galleryGridPanel);
 
         centerPanel.add(galleryScrollPane, "gallery");
+        String emptyGallery = "No Pictures Found";
+        JLabel emptyLabel = new JLabel(emptyGallery, SwingConstants.CENTER);
         centerPanel.add(emptyLabel, "empty");
         add(centerPanel, BorderLayout.CENTER);
 
@@ -49,7 +45,8 @@ public class Gallery extends JPanel {
         searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                currentDataBase = mainDataBase.SearchWord(searchBarField.getText());
+                SearchObject searchQuery = new SearchObject(searchBarField.getText());
+                mainDataBase.SearchDB(searchQuery);
                 updateGalleryView();
             }
                                        });
@@ -57,7 +54,8 @@ public class Gallery extends JPanel {
         clearButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                currentDataBase = mainDataBase;
+                mainDataBase = new GalleryDatabaseInteractor();
+                searchBarField.setText("");
                 updateGalleryView();
             }
         });
@@ -66,10 +64,10 @@ public class Gallery extends JPanel {
         galleryGridPanel.removeAll();
         CardLayout cl = (CardLayout)(centerPanel.getLayout());
 
-        if (currentDataBase.GameData.isEmpty()) {
+        if (mainDataBase.isEmpty()) {
             cl.show(centerPanel, "empty");
         } else {
-            for (GameRecord record : currentDataBase.GameData) {
+            for (GameRecord record : mainDataBase.getGameData()) {
                 ImageIcon icon = new ImageIcon(record.getImagePath());
                 Image image = icon.getImage();
                 // Scale image to a thumbnail size

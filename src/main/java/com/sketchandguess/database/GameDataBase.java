@@ -2,9 +2,9 @@ package com.sketchandguess.database;
 
 import com.sketchandguess.entities.Difficulty;
 import com.sketchandguess.entities.GameRecord;
+import com.sketchandguess.usecases.RetrieveGamesUseCase;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -13,48 +13,43 @@ import java.util.*;
 public class GameDataBase implements DataBase {
     // The database storing each game.
     // The string contains the prompt used for the game, and helps us search for specific prompts.
-    public ArrayList<GameRecord> GameData;
+    private final List<GameRecord> gameData;
 
     public GameDataBase() {
-        this.GameData = new ArrayList<>();
+        this.gameData = new ArrayList<>();
         try {
             List<String> lines = Files.readAllLines(Paths.get("src", "main", "resources", "games.csv"));
 
-            Iterator<String> iterator = lines.iterator();
-            while (iterator.hasNext()) {
-                String line = iterator.next();
+            for (String line : lines) {
                 ArrayList<String> parts = new ArrayList<>(Arrays.asList(line.split(",")));
-                GameRecord currentGame = ConvertToRecord(parts); // TODO: implement this once gameRecord constructor is implemented
-                GameData.add(currentGame);
+                GameRecord currentGame = convertToRecord(parts);
+                gameData.add(currentGame);
             }
         }
         catch (IOException ex) {
             throw new RuntimeException(ex);
         }
-        ;
+
+    }
+
+    public List<GameRecord> getGameData() {
+        return this.gameData;
     }
 
     // overloaded version for search function
-    public GameDataBase(ArrayList<GameRecord> GameData) {
-        this.GameData = GameData;
+    public GameDataBase(List<GameRecord> gameData) {
+        this.gameData = gameData;
     }
 
-    public GameRecord GetGame(Integer GameCode) {
-        return GameData.get(GameCode);
+
+
+    // TODO: gallery search function creates a new "search" object. implement the search object, then make it so this function takes the search object as input
+    public GameDataBase SearchWord(SearchObject searchQuery) {
+        RetrieveGamesUseCase gameSearcher = new RetrieveGamesUseCase(this);
+        return new GameDataBase(gameSearcher.searchGames(searchQuery));
     }
 
-    public GameDataBase SearchWord(String Query) {
-        ArrayList<GameRecord> Matches = new ArrayList<>();
-        for (GameRecord g: this.GameData) {
-            // TODO come back to this once gamerecord is implemented
-            if (g.getPrompt().contains(Query)) {
-                Matches.add(Matches.size(), g);
-            }
-        }
-        return new GameDataBase(Matches);
-    }
-
-    private GameRecord ConvertToRecord(ArrayList<String> data) {
+    private GameRecord convertToRecord(ArrayList<String> data) {
         return new GameRecord(data.get(0),
         LocalDate.parse(data.get(1)),
         Boolean.parseBoolean(data.get(2)),
@@ -65,9 +60,9 @@ public class GameDataBase implements DataBase {
 
         );
     }
-    public Boolean DeleteGame(GameRecord DeletedGame) {
+    public Boolean DeleteGame(GameRecord deletedGame) {
         try {
-            this.GameData.remove(DeletedGame);
+            this.gameData.remove(deletedGame);
             return Boolean.TRUE;
         } catch (Exception e) {
             return Boolean.FALSE;
