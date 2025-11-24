@@ -4,6 +4,7 @@ import com.sketchandguess.database.GameDataBase;
 import com.sketchandguess.entities.GameRecord;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,10 +13,10 @@ public class RetrieveGamesUseCase {
     public RetrieveGamesUseCase(GameDataBase GameData) {
         this.GameData = GameData;
     }
-    public Map<Integer, GameRecord> GetGames() {
+    public ArrayList<GameRecord> GetGames() {
         return this.GameData.GameData;
     }
-    public Map<Integer, GameRecord> SearchGames(String search) {
+    public ArrayList<GameRecord> SearchGames(String search) {
         return GameData.SearchWord(search).GameData;
     }
 
