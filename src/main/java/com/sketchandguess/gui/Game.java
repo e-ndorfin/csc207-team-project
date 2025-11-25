@@ -249,17 +249,16 @@ public class Game extends JPanel {
                 @Override
                 public void mousePressed(MouseEvent e) {
                     switch (currentTool) {
-                        case PEN -> {
+                        case PEN:
                             brushColor = Color.BLACK;
                             brushSize = 4;
-                        }
-                        case ERASER -> {
+                            break;
+                        case ERASER:
                             brushColor = Color.WHITE;
                             brushSize = 10;
-                        }
-                        case NONE -> {
+                            break;
+                        case NONE:
                             return;
-                        }
                     }
 
                     currentStroke = new ArrayList<>();

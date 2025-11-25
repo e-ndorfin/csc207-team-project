@@ -1,14 +1,16 @@
 package com.sketchandguess.database;
 
-import com.sketchandguess.entities.Difficulty;
-import com.sketchandguess.entities.GameRecord;
-
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
+
+import com.sketchandguess.entities.Difficulty;
+import com.sketchandguess.entities.GameRecord;
 
 public class GameDataBase implements DataBase {
     // The database storing each game.
@@ -74,3 +76,4 @@ public class GameDataBase implements DataBase {
         }
 
     }
+}
