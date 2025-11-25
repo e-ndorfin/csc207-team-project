@@ -2,20 +2,36 @@ package com.sketchandguess.gui;
 
 
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.BasicStroke;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.GridLayout;
+import java.awt.Image;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.Timer;
+
+import com.sketchandguess.entities.Difficulty;
+import com.sketchandguess.interface_adapters.game.GameController;
 
 
 public class Game extends JPanel {
     private final Application app;
-    private final RecordGameController controller;
+    private final GameController controller;
 
     private String prompt; // current game's prompt(using controller to generate random prompt)
     private JLabel promptLabel;
@@ -35,7 +51,7 @@ public class Game extends JPanel {
     private enum Tool { NONE, PEN, ERASER }
     private Tool currentTool = Tool.PEN;
 
-    public Game(Application app, RecordGameController controller) {
+    public Game(Application app, GameController controller) {
         this.app = app;
         this.controller = controller;
         setLayout(new BorderLayout());
@@ -73,10 +89,20 @@ public class Game extends JPanel {
 
         doneButton.addActionListener(e -> {
             BufferedImage image = canvas.exportImage();
-            controller.onDoneButtonClicked(image);
+            double timeTaken = timeLimitSeconds - timeLeftSeconds;
+            // Parse difficulty string to Difficulty object
+            String diffStr = difficultyLabel.getText().replace("Difficulty: ", "").trim();
+            if (diffStr.isEmpty()) {
+                diffStr = "Medium";
+            }
+            Difficulty difficulty = new Difficulty(diffStr); 
+            
+            String currentPrompt = promptLabel.getText().replace("Prompt: ", "").trim();
+            
+            controller.executeGameResult(image, currentPrompt, difficulty, timeTaken, timeLimitSeconds);
+            
             stopCountdown();
             resetTool();
-            app.showGameResult();
         });
 
         backButton.addActionListener(e -> {

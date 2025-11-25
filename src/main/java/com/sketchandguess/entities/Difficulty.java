@@ -4,9 +4,14 @@ public class Difficulty {
     private String difficultyName;
     private String[] prompts;
 
-
-    // dummy method for demo
-    // TODO: fully implement method and include an overloaded version taking a string as input
     public Difficulty(String s) {
+        if (!s.equals("Easy") && !s.equals("Medium") && !s.equals("Hard")) {
+            throw new IllegalArgumentException("Difficulty must be Easy, Medium, or Hard");
+        }
+        this.difficultyName = s;
+    }
+
+    public String getDifficultyName() {
+        return difficultyName;
     }
 }

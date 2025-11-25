@@ -1,20 +1,20 @@
 package com.sketchandguess.gui;
 
+import com.sketchandguess.database.GameDataBase;
+import com.sketchandguess.database.UserSettingsDataBase;
+import com.sketchandguess.interface_adapters.ViewManagerModel;
 import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowController;
 import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowPresenter;
 import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowViewModel;
+import com.sketchandguess.interface_adapters.game.GameController;
+import com.sketchandguess.interface_adapters.game.GamePresenter;
+import com.sketchandguess.usecases.RecordGameUseCase.RecordGameUseCase;
 import com.sketchandguess.usecases.select_game.SelectGameRecordUseCase;
-import com.sketchandguess.database.UserSettingsDataBase;
-import com.sketchandguess.interface_adapters.ViewManagerModel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-
-interface RecordGameController {
-    void onDoneButtonClicked(java.awt.image.BufferedImage image);
-}
 
 public class Application extends JFrame {
     private MainMenu mainMenu;
@@ -26,21 +26,13 @@ public class Application extends JFrame {
     private final ViewManagerModel viewManagerModel;
     private GameResult gameResult;
     private UserSettingsDataBase userSettingsDataBase;
+    private GameDataBase gameDataBase;
     
     public Application() {
         setTitle("Sketch and Guess");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(800, 600);
         setLocationRelativeTo(null);
-
-        // Mock controller
-        RecordGameController mockController = new RecordGameController() {
-            @Override
-            public void onDoneButtonClicked(java.awt.image.BufferedImage image) {
-                System.out.println("Game completed! Image saved.");
-                showGameResult();
-            }
-        };
 
         // Initialize ViewManagerModel
         viewManagerModel = new ViewManagerModel(); // Instantiate ViewManagerModel
@@ -52,10 +44,16 @@ public class Application extends JFrame {
         galleryWindowController = new GalleryWindowController(selectGameRecordUseCase, viewManagerModel); // Pass viewManagerModel
         
         userSettingsDataBase = new UserSettingsDataBase();
+        gameDataBase = new GameDataBase(); // Initialize GameDataBase
+
+        // Initialize Game/Record Components
+        GamePresenter gamePresenter = new GamePresenter(viewManagerModel);
+        RecordGameUseCase recordGameUseCase = new RecordGameUseCase(gameDataBase, gamePresenter);
+        GameController gameController = new GameController(recordGameUseCase);
 
         // Initialize views
         mainMenu = new MainMenu(this);
-        game = new Game(this, mockController);
+        game = new Game(this, gameController);
         gameResult = new GameResult(this);
         gallery = new Gallery(galleryWindowController); // Pass the controller to Gallery
         settings = new Settings(this, userSettingsDataBase);
@@ -74,7 +72,7 @@ public class Application extends JFrame {
             }
         });
 
-        // Add PropertyChangeListener to ViewManagerModel for view switching
+        // Add PropertyChangeListener to ViewManagerModel to switch view when state changes
         viewManagerModel.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
@@ -93,7 +91,9 @@ public class Application extends JFrame {
                         case "Settings":
                             showSettings();
                             break;
-                        // Add other cases as needed
+                        case "GameResult":
+                            showGameResult();
+                            break;
                     }
                 }
             }
@@ -107,7 +107,6 @@ public class Application extends JFrame {
 
     public void startNewGame() {
         game.resetCompletely();
-//        recordGame.controller.startNewGame();
         showGame();
     }
 

@@ -1,6 +1,6 @@
 package com.sketchandguess.usecases.RecordGameUseCase;
 
-import com.sketchandguess.database.GameDataBase;
+import com.sketchandguess.usecases.GameDataAccessInterface;
 import com.sketchandguess.entities.GameRecord;
 
 import java.time.LocalDate;
@@ -9,21 +9,21 @@ import java.time.LocalDate;
  * The RecordGame use case.
  * This class performs the business logic:
  *  - Build a GameRecord entity
- *  - Save it into the database (via GameDataBase)
+ *  - Save it into the database (via GameDataAccessInterface)
  *  - Prepare output data
  *  - Call the presenter
  */
 public class RecordGameUseCase implements RecordGameInputBoundary {
 
     /** Gateway to the game database. */
-    private final GameDataBase gameDataBase;
+    private final GameDataAccessInterface gameDataAccessObject;
 
     /** Presenter that will receive the result. */
     private final RecordGameOutputBoundary presenter;
 
-    public RecordGameUseCase(GameDataBase gameDataBase,
+    public RecordGameUseCase(GameDataAccessInterface gameDataAccessObject,
                              RecordGameOutputBoundary presenter) {
-        this.gameDataBase = gameDataBase;
+        this.gameDataAccessObject = gameDataAccessObject;
         this.presenter = presenter;
     }
 
@@ -42,8 +42,8 @@ public class RecordGameUseCase implements RecordGameInputBoundary {
                 inputData.aiGuess
         );
 
-        // Save to database (temporary: directly add to GameData list)
-        gameDataBase.GameData.add(record);
+        // Save to database
+        gameDataAccessObject.save(record);
 
         // Prepare output data for presenter / GameResult screen
         RecordGameOutputData outputData = new RecordGameOutputData(
