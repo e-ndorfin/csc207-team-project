@@ -33,7 +33,7 @@ public class Game extends JPanel {
     private Cursor currentToolCursor = null;
 
     private enum Tool { NONE, PEN, ERASER }
-    private Tool currentTool = Tool.NONE;
+    private Tool currentTool = Tool.PEN;
 
     public Game(Application app, RecordGameController controller) {
         this.app = app;
@@ -127,11 +127,11 @@ public class Game extends JPanel {
         }
 
     public void resetTool(){
-            currentTool = Tool.NONE;
-            currentToolCursor = null;
+            currentTool = Tool.PEN;
+            currentToolCursor = getPencilCursor();
             if (canvas != null) {
             canvas.resetBrush();
-            canvas.setCursor(Cursor.getDefaultCursor());
+            canvas.setCursor(currentToolCursor);
         }
     }
 
