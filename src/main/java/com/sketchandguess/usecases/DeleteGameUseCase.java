@@ -1,20 +1,26 @@
 package com.sketchandguess.usecases;
 
-import com.sketchandguess.database.GameDataBase;
+// import com.sketchandguess.database.GameDataBase;
 import com.sketchandguess.entities.GameRecord;
 
 public class DeleteGameUseCase implements DeleteGameInputBoundary {
-    private final GameDataBase gameDataBase;
-    public DeleteGameUseCase(GameDataBase gameDataBase) {
-        this.gameDataBase = gameDataBase;
+    private final GameDataAccessInterface gameDataAccess;
+    public DeleteGameUseCase(GameDataAccessInterface gameDataAccess) {
+        this.gameDataAccess = gameDataAccess;
     }
 
     /**
      * @param gameRecord the game record which is supposed to be deleted
-     * @return ture if the record is deleted successfully, false if failed to be deleted
+     * @return null if the record is deleted successfully, error message if failed
      */
     @Override
-    public boolean delete (GameRecord gameRecord) {
-        return gameDataBase.deleteGame(gameRecord);
+    public String delete (GameRecord gameRecord) {
+        try {
+            boolean success = gameDataAccess.deleteGame(gameRecord);
+            return success ? null : "Database delete returned false";
+        } catch (Exception e) {
+            e.printStackTrace();
+            return e.getMessage();
+        }
     }
 }
