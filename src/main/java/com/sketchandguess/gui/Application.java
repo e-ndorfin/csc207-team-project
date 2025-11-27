@@ -1,8 +1,14 @@
 package com.sketchandguess.gui;
 
+import com.sketchandguess.database.GameDataBase;
 import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowController;
 import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowPresenter;
+import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowState;
 import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowViewModel;
+import com.sketchandguess.usecases.DeleteGameInputBoundary;
+import com.sketchandguess.usecases.DeleteGameUseCase;
+import com.sketchandguess.usecases.SaveImageToUserInputBoundary;
+import com.sketchandguess.usecases.SaveImageToUserUseCase;
 import com.sketchandguess.usecases.select_game.SelectGameRecordUseCase;
 import com.sketchandguess.database.UserSettingsDataBase;
 import com.sketchandguess.interface_adapters.ViewManagerModel; // Import ViewManagerModel
@@ -25,7 +31,7 @@ public class Application extends JFrame {
     private final GalleryWindowViewModel galleryWindowViewModel;
     private final GalleryWindowController galleryWindowController;
     private final ViewManagerModel viewManagerModel; // Declare ViewManagerModel
-
+    private GameDataBase gameDataBase;
     private UserSettingsDataBase userSettingsDataBase;
     
     public Application() {
@@ -50,7 +56,22 @@ public class Application extends JFrame {
         galleryWindowViewModel = new GalleryWindowViewModel();
         GalleryWindowPresenter galleryWindowPresenter = new GalleryWindowPresenter(galleryWindowViewModel);
         SelectGameRecordUseCase selectGameRecordUseCase = new SelectGameRecordUseCase(galleryWindowPresenter);
-        galleryWindowController = new GalleryWindowController(selectGameRecordUseCase, viewManagerModel); // Pass viewManagerModel
+        GalleryWindowState galleryState = galleryWindowViewModel.getState();
+        if (galleryState == null) {
+            galleryState = new GalleryWindowState();
+            galleryWindowViewModel.setState(galleryState);
+        }
+
+        DeleteGameInputBoundary deleteGameUseCase = new DeleteGameUseCase(gameDataBase);
+        SaveImageToUserInputBoundary saveImageUseCase = new SaveImageToUserUseCase();
+        galleryWindowController = new GalleryWindowController(
+                galleryState,
+                galleryWindowPresenter,
+                deleteGameUseCase,
+                saveImageUseCase,
+                selectGameRecordUseCase,
+                viewManagerModel
+        ); // Pass viewManagerModel
         
         userSettingsDataBase = new UserSettingsDataBase();
 
