@@ -174,6 +174,8 @@ This workflow demonstrates how the **Clean Architecture** layers interact when a
 
 5.  **Output Processing (Interface Adapters):**
     *   `GamePresenter` receives the output data.
+    *   It calculates the win/loss status and constructs an ending message (e.g., "You Win!").
+    *   It updates the `GameResultState` within the `GameResultViewModel` with the game results (prompt, AI guess, time, etc.).
     *   It updates the `ViewManagerModel` state to switch the active view to `"GameResult"`.
 
 6.  **UI Update (Frameworks & Drivers):**
