@@ -126,66 +126,57 @@ UML / project layout:
 - Settings (OG)
 
 
+## Clean Architecture Reference 
 
+### 1. Layers
+*   **Frameworks & Drivers (Outer):**
+    *   **View:** UI that displays `ViewModel` state and delegates user actions to the `Controller`.
+    *   **Data Access:** Implements interfaces from the Use Case layer to persist data (DB, files).
+*   **Interface Adapters:**
+    *   **Controller:** Packages raw user input into `InputData` and invokes the `Use Case`.
+    *   **Presenter:** Formats `OutputData` from the Use Case and updates the `ViewModel`.
+    *   **ViewModel:** Holds the UI state. The View observes this for updates.
+*   **Use Cases (Application Rules):**
+    *   **Interactor:** Orchestration logic. Implements `InputBoundary`. Uses `Entities` and `DataAccessInterface`.
+    *   **Boundaries:** `InputBoundary` (called by Controller), `OutputBoundary` (implemented by Presenter).
+    *   **Data:** `InputData` (from Controller), `OutputData` (to Presenter).
+*   **Entities (Enterprise Rules):**
+    *   Core business objects (e.g., `GameRecord`) and high-level rules. Independent of all other layers.
 
-## NOTES ON CLEAN ARCHITECTURE
-base - all dependencies should point inward 
-![[Pasted image 20251117140434.png]]
-isolating what the system does 
+### 2. Control Flow (The "Engine")
+1.  **View** captures event -> calls **Controller**.
+2.  **Controller** creates `InputData` -> calls **Use Case** (via `InputBoundary`).
+3.  **Use Case** interacts with **Data Access** (via Interface) to fetch/save **Entities**.
+4.  **Use Case** processes logic -> creates `OutputData` -> calls **Presenter** (via `OutputBoundary`).
+5.  **Presenter** formats data -> updates **ViewModel**.
+6.  **View** observes `ViewModel` update -> refreshes UI.
 
-entity - GameRecord
-use case - retrieveGame
-interface adapter - DataBase, APICaller
-- .save, .retrieve, . find, .search 
+### Workflow Example: Record Game
 
-```java
-interface DataBase {
-	save() {}
-	retrieve() {}
-}
-```
+This workflow demonstrates how the **Clean Architecture** layers interact when a user finishes a game.
 
-interface - GameDataBase, GUI, APIs,
-- .save {csv.parse}
-- java.swing
-- HuggingFaceAPIHandler
+1.  **UI Event (Frameworks & Drivers):**
+    *   User clicks "Done" in `Game.java`.
+    *   The listener gathers state (drawing image, prompt, difficulty, time taken) and calls `GameController.executeGameResult()`.
 
-```java
-class GameDataBase implements DataBase {
+2.  **Input Processing (Interface Adapters):**
+    *   `GameController` saves the drawing to disk (getting an `imagePath`).
+    *   It packages all data into a `RecordGameInputData` object.
+    *   It calls `RecordGameInputBoundary.execute(inputData)` (the Use Case).
 
-}
-```
+3.  **Business Logic (Use Cases):**
+    *   `RecordGameUseCase` creates a `GameRecord` entity from the input data.
+    *   It calls `GameDataAccessInterface.save(gameRecord)` to persist the data.
+    *   It creates `RecordGameOutputData` and calls `RecordGameOutputBoundary.present(outputData)`.
 
-- **entities** hold core business logic / rules (Ride, Passengers, Drivers), doesn't care about where data comes from or how it's stored 
-Ride - status, rideId, assignDriver 
-- always takes in rideIds and passengerIds, not the actual objects. 
+4.  **Data Persistence (Interface Adapters):**
+    *   `GameDataBase` (implementing `GameDataAccessInterface`) adds the record to its list and appends it to `games.csv`.
 
-- **use cases** orchestrate entities - RequestRide matches passenger with available driver 
+5.  **Output Processing (Interface Adapters):**
+    *   `GamePresenter` receives the output data.
+    *   It calculates the win/loss status and constructs an ending message (e.g., "You Win!").
+    *   It updates the `GameResultState` within the `GameResultViewModel` with the game results (prompt, AI guess, time, etc.).
+    *   It updates the `ViewManagerModel` state to switch the active view to `"GameResult"`.
 
-RequestRide - only dependent on the interface adapter rideRepository (independent of how data is stored)
-- makes a new Ride object and saves it in the repository
-
-- **interface adapters** are translators between core logic and APIs / databases - REST controller takes an incoming hTTP request, calls usecase, then formats response back to client 
-
-RideRepository - an **interface** that has `save`, `findById`, `update`. customizable depending on the db. 
-
-Controller - **connects HTML requests with usecases** - gets POST request and triggers usecases 
-
-- **interfaces** - UI, DB, APIs 
-
-Repository - implements RideRepository
-
-when http req comes in, 
-- controller triggers usecase 
-- usecase interacts with repo and returns response 
-
-```python
-TextField(label: "prompt", text: "banana")
-
-later...
-
-import Controller 
-
-info = controller.get(game)
-TextField(label: "prompt", text: info.prompt)
-```
+6.  **UI Update (Frameworks & Drivers):**
+    *   `Application.java` (listening to `ViewManagerModel`) detects the change and switches the visible panel to `GameResult`.
