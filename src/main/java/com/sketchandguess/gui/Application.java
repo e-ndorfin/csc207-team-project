@@ -62,6 +62,8 @@ public class Application extends JFrame {
             galleryWindowViewModel.setState(galleryState);
         }
 
+        this.gameDataBase = new GameDataBase();
+
         DeleteGameInputBoundary deleteGameUseCase = new DeleteGameUseCase(gameDataBase);
         SaveImageToUserInputBoundary saveImageUseCase = new SaveImageToUserUseCase();
         galleryWindowController = new GalleryWindowController(

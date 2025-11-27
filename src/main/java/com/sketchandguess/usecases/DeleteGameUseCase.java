@@ -15,6 +15,6 @@ public class DeleteGameUseCase implements DeleteGameInputBoundary {
      */
     @Override
     public boolean delete (GameRecord gameRecord) {
-        return gameDataBase.DeleteGame(gameRecord);
+        return gameDataBase.deleteGame(gameRecord);
     }
 }
