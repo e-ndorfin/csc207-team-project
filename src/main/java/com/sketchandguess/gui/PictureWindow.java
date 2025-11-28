@@ -16,8 +16,10 @@ public class PictureWindow extends JFrame implements PropertyChangeListener {
     private final GalleryWindowController GalleryWindowController;
 
     private JLabel imageLabel;
-    private JLabel titleLabel;
-    private JLabel infoLabel;
+    private JLabel statsHeaderLabel;
+    private JLabel dateLabel;
+    private JLabel promptLabel;
+    private JLabel outcomeLabel;
     private JLabel errorLabel;
     private JButton saveButton;
     private JButton deleteButton;
@@ -42,16 +44,20 @@ public class PictureWindow extends JFrame implements PropertyChangeListener {
     private void initComponents() {
         imageLabel = new JLabel();
         imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-
-        titleLabel = new JLabel();
-        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 18f));
-
-        infoLabel = new JLabel();
+        imageLabel.setVerticalAlignment(SwingConstants.CENTER);
 
         errorLabel = new JLabel();
         errorLabel.setForeground(Color.RED);
+        errorLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-        saveButton = new JButton("Save Image");
+        statsHeaderLabel = new JLabel("Game details");
+        statsHeaderLabel.setFont(statsHeaderLabel.getFont().deriveFont(Font.BOLD, 20f));
+
+        dateLabel = createStatLabel("date: —");
+        promptLabel = createStatLabel("prompt: —");
+        outcomeLabel = createStatLabel("outcome: —");
+
+        saveButton = new JButton("Save to Computer");
         saveButton.addActionListener(e -> {
             GalleryWindowState state = GalleryWindowViewModel.getState();
             GameRecord record = state.getCurrentRecord();
@@ -73,23 +79,45 @@ public class PictureWindow extends JFrame implements PropertyChangeListener {
         });
     }
 
-    private void layoutComponents() {
-        setLayout(new BorderLayout());
+    private JLabel createStatLabel(String text) {
+        JLabel label = new JLabel(text);
+        label.setFont(label.getFont().deriveFont(Font.PLAIN, 16f));
+        return label;
+    }
 
-        JPanel infoPanel = new JPanel();
-        infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
-        infoPanel.add(titleLabel);
-        infoPanel.add(infoLabel);
-        infoPanel.add(errorLabel);
+    private void layoutComponents() {
+        setLayout(new BorderLayout(16, 16));
 
         JScrollPane imageScroll = new JScrollPane(imageLabel);
+        imageScroll.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 8));
 
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel statsPanel = new JPanel();
+        statsPanel.setLayout(new BoxLayout(statsPanel, BoxLayout.Y_AXIS));
+        statsPanel.setBorder(BorderFactory.createEmptyBorder(32, 8, 32, 24));
+        statsPanel.add(statsHeaderLabel);
+        statsPanel.add(Box.createVerticalStrut(24));
+        statsPanel.add(dateLabel);
+        statsPanel.add(Box.createVerticalStrut(12));
+        statsPanel.add(promptLabel);
+        statsPanel.add(Box.createVerticalStrut(12));
+        statsPanel.add(outcomeLabel);
+        statsPanel.add(Box.createVerticalGlue());
+
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, imageScroll, statsPanel);
+        splitPane.setResizeWeight(0.7);
+        splitPane.setBorder(BorderFactory.createEmptyBorder());
+        splitPane.setDividerSize(6);
+
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 12));
         buttonPanel.add(saveButton);
         buttonPanel.add(deleteButton);
 
-        add(infoPanel, BorderLayout.NORTH);
-        add(imageScroll, BorderLayout.CENTER);
+        JPanel topPanel = new JPanel(new BorderLayout());
+        topPanel.setBorder(BorderFactory.createEmptyBorder(10, 16, 0, 16));
+        topPanel.add(errorLabel, BorderLayout.CENTER);
+
+        add(topPanel, BorderLayout.NORTH);
+        add(splitPane, BorderLayout.CENTER);
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
@@ -98,32 +126,43 @@ public class PictureWindow extends JFrame implements PropertyChangeListener {
         GameRecord record = state.getCurrentRecord();
 
         if (record != null) {
-            titleLabel.setText("Picture Preview");
-            infoLabel.setText(record.getPrompt());
-
-            String imagePath = record.getImagePath();
-
-            if (imagePath != null) {
-                ImageIcon icon = new ImageIcon(imagePath);
-
-                Image scaled = icon.getImage().getScaledInstance(
-                        600, -1, Image.SCALE_SMOOTH);
-
-                imageLabel.setIcon(new ImageIcon(scaled));
-                imageLabel.setText(null);
-            } else {
-                imageLabel.setIcon(null);
-                imageLabel.setText("No image available");
-            }
-
+            loadImage(record.getImagePath());
+            statsHeaderLabel.setText("Selected game");
+            dateLabel.setText("date: " + defaultText(state.getDateText()));
+            promptLabel.setText("prompt: " + defaultText(state.getPromptText()));
+            outcomeLabel.setText("outcome: " + defaultText(state.getOutcomeText()));
         } else {
-            titleLabel.setText("");
-            infoLabel.setText("");
-            imageLabel.setIcon(null);
-            imageLabel.setText("No picture selected");
+            clearImage();
+            statsHeaderLabel.setText("Game details");
+            dateLabel.setText("date: —");
+            promptLabel.setText("prompt: —");
+            outcomeLabel.setText("outcome: —");
         }
 
+        saveButton.setEnabled(record != null);
+        deleteButton.setEnabled(record != null);
         errorLabel.setText(state.getErrorMessage());
+    }
+
+    private void loadImage(String imagePath) {
+        if (imagePath != null) {
+            ImageIcon icon = new ImageIcon(imagePath);
+            Image scaled = icon.getImage().getScaledInstance(
+                    600, -1, Image.SCALE_SMOOTH);
+            imageLabel.setIcon(new ImageIcon(scaled));
+            imageLabel.setText(null);
+        } else {
+            clearImage();
+        }
+    }
+
+    private void clearImage() {
+        imageLabel.setIcon(null);
+        imageLabel.setText("No picture selected");
+    }
+
+    private String defaultText(String value) {
+        return (value == null || value.isEmpty()) ? "—" : value;
     }
 
     @Override

@@ -8,21 +8,19 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collections;
 
-// TODO ensure this does not call usecase methods, if it does, use a controller
 public class Gallery extends JPanel {
     private final String viewName = "Drawing Gallery";
     private final String emptyGallery = "No Pictures Found";
-    // this database represents the "main" database of images we are drawing from; it will be the database shown by default
-    public final GameDataBase mainDataBase;
-    // this database represents the current database being shown. Usually, this is the MainDataBase, but it will change when the search bar is used.
+    public GameDataBase mainDataBase;
     public GameDataBase currentDataBase;
 
     private final JTextField searchBarField = new JTextField(15);
     private final JPanel searchBar = new JPanel();
     private final JButton searchButton = new JButton("Search");
     private final JButton clearButton = new JButton("Clear");
-    private final JButton backButton = new JButton("Back to Main Menu"); // New back button
+    private final JButton backButton = new JButton("Back to Main Menu");
     private final JPanel galleryGridPanel;
     private final JScrollPane galleryScrollPane;
     private final JPanel centerPanel = new JPanel(new CardLayout());
@@ -51,7 +49,10 @@ public class Gallery extends JPanel {
 
         galleryGridPanel = new JPanel(new GridLayout(0, 3, 10, 10));
         galleryScrollPane = new JScrollPane(galleryGridPanel);
-
+        
+        // Configure scroll speed for faster scrolling
+        galleryScrollPane.getVerticalScrollBar().setUnitIncrement(16); // increase for faster scrolling
+        
         centerPanel.add(galleryScrollPane, "gallery");
         centerPanel.add(emptyLabel, "empty");
         add(centerPanel, BorderLayout.CENTER);
@@ -78,6 +79,20 @@ public class Gallery extends JPanel {
             galleryWindowController.goBackToMainMenu();
         });
     }
+    
+    /**
+     * Refreshes the gallery by reloading the database from the CSV file
+     * and updating the view - called in `Application.java` when gallery is opened.
+     */
+    public void refresh() {
+        // Reload the database from CSV
+        this.mainDataBase = new GameDataBase();
+        // Reset currentDataBase to mainDataBase (in case we were in a search)
+        this.currentDataBase = mainDataBase;
+        // Update the view with the fresh data
+        updateGalleryView();
+    }
+    
     private void updateGalleryView() {
         galleryGridPanel.removeAll();
         CardLayout cl = (CardLayout)(centerPanel.getLayout());
@@ -85,7 +100,11 @@ public class Gallery extends JPanel {
         if (currentDataBase.GameData.isEmpty()) {
             cl.show(centerPanel, "empty");
         } else {
-            for (GameRecord record : currentDataBase.GameData) {
+            // Reverse the list to show newest (bottom of CSV) at the top
+            var reversedRecords = new java.util.ArrayList<>(currentDataBase.GameData);
+            Collections.reverse(reversedRecords);
+            
+            for (GameRecord record : reversedRecords) {
                 ImageIcon icon = new ImageIcon(record.getImagePath());
                 Image image = icon.getImage();
                 // Scale image to a thumbnail size
