@@ -1,26 +1,27 @@
 package com.sketchandguess.usecases;
 
 import com.sketchandguess.database.GameDataBase;
+import com.sketchandguess.database.SearchObject;
 import com.sketchandguess.entities.GameRecord;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 public class RetrieveGamesUseCase {
-    private final GameDataBase GameData;
-    public RetrieveGamesUseCase(GameDataBase GameData) {
-        this.GameData = GameData;
-    }
-    public ArrayList<GameRecord> GetGames() {
-        return this.GameData.GameData;
-    }
-    public ArrayList<GameRecord> SearchGames(String search) {
-        return GameData.SearchWord(search).GameData;
+    private final GameDataBase dataBase;
+
+    public RetrieveGamesUseCase(GameDataBase dataBase) {
+        this.dataBase = dataBase;
     }
 
-    public GameRecord GetGame(int GameCode) {
-        return this.GameData.GetGame(GameCode);
-    }
+    public List<GameRecord> searchGames(SearchObject search) {
+            ArrayList<GameRecord> gameMatches = new ArrayList<>();
+            for (GameRecord g: this.dataBase.getGameData()) {
+                if (g.getPrompt().contains(search.getQuery())) {
+                    gameMatches.add(gameMatches.size(), g);
+                }
+            }
+            return gameMatches;
+        }
+
 }
