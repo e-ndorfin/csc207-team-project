@@ -58,12 +58,12 @@ public class UserSettingsDataBase {
             }
         } catch (IOException e) {
             // File read error, use defaults
-            System.err.println("Error reading user settings JSON file: " + e.getMessage());
+            // System.err.println("Error reading user settings JSON file: " + e.getMessage());
             currentSettings = new UserSettings("default-user", 60.0, "png");
             currentSettings.setDifficultyName("medium");
         } catch (Exception e) {
             // JSON parsing error, use defaults
-            System.err.println("Error parsing user settings JSON: " + e.getMessage());
+            // System.err.println("Error parsing user settings JSON: " + e.getMessage());
             currentSettings = new UserSettings("default-user", 60.0, "png");
             currentSettings.setDifficultyName("medium");
         }

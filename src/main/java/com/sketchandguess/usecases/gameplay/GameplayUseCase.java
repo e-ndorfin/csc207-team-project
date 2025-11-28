@@ -88,14 +88,14 @@ public class GameplayUseCase implements GameplayInputBoundary {
                     outputBoundary.present(outputData);
                 })
                 .exceptionally(e -> {
-                    System.err.println("GameplayUseCase error: " + e.getMessage());
+                    // System.err.println("GameplayUseCase error: " + e.getMessage());
                     GameplayOutputData outputData = new GameplayOutputData(new ArrayList<Prediction>(), false);
                     outputBoundary.present(outputData);
                     return null;
                 });
 
         } catch (Exception e) {
-            System.err.println("Error preparing API call: " + e.getMessage());
+            // System.err.println("Error preparing API call: " + e.getMessage());
             GameplayOutputData outputData = new GameplayOutputData(new ArrayList<Prediction>(), false);
             outputBoundary.present(outputData);
         }

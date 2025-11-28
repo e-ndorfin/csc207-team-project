@@ -28,11 +28,11 @@ public class GalleryWindowController {
     // These would likely interact with other use cases (SaveImageToUserUseCase, DeleteGameUseCase)
     public void saveImage() {
         // TODO: Implement save image logic
-        System.out.println("Save image called in controller.");
+        // System.out.println("Save image called in controller.");
     }
 
     public void deleteGame() {
         // TODO: Implement delete game logic
-        System.out.println("Delete game called in controller.");
+        // System.out.println("Delete game called in controller.");
     }
 }

@@ -36,7 +36,7 @@ public class HuggingFaceAPICaller implements APICaller {
                     return response.body();
                 })
                 .exceptionally(e -> {
-                    System.err.println("API call failed: " + e.getMessage());
+                    // System.err.println("API call failed: " + e.getMessage());
                     return "[]";
                 });
     }
