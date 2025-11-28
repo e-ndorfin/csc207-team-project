@@ -1,20 +1,29 @@
 package com.sketchandguess.gui;
 
+import com.sketchandguess.interface_adapters.game.GameResultState;
+import com.sketchandguess.interface_adapters.game.GameResultViewModel;
+
 import javax.swing.*;
 import java.awt.*;
-import javax.swing.JLabel;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.io.File;
 
-public class GameResult extends JPanel {
+public class GameResult extends JPanel implements PropertyChangeListener {
 
     private final Application app;   // to switch screens
+    private final GameResultViewModel viewModel;
     private final JLabel titleLabel;
     private final JLabel promptLabel;
     private final JLabel aiGuessLabel;
     private final JLabel timeTakenLabel;
     private final JLabel imageLabel;
 
-    public GameResult(Application app) {
+    public GameResult(Application app, GameResultViewModel viewModel) {
         this.app = app;
+        this.viewModel = viewModel;
+        this.viewModel.addPropertyChangeListener(this);
+
         setLayout(new BorderLayout(10,10));
         setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
 
@@ -60,6 +69,38 @@ public class GameResult extends JPanel {
 
         add(bottomPanel, BorderLayout.SOUTH);
     }
-}
 
-//Todo: use controller to get the data about prompt, time taken....
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if ("state".equals(evt.getPropertyName())) {
+            GameResultState state = (GameResultState) evt.getNewValue();
+            updateUI(state);
+        }
+    }
+
+    private void updateUI(GameResultState state) {
+        titleLabel.setText(state.getEndingMessage());
+        promptLabel.setText("Prompt: " + state.getPrompt());
+        aiGuessLabel.setText("AI Guess: " + state.getAiGuess());
+        timeTakenLabel.setText(String.format("Time Taken: %.1f / %.1f s", state.getTimeTaken(), state.getTimeLimit()));
+
+        // Update Image
+        String imagePath = state.getImagePath();
+        if (imagePath != null && !imagePath.isEmpty()) {
+            File file = new File(imagePath);
+            if (file.exists()) {
+                ImageIcon icon = new ImageIcon(imagePath);
+                // Scale to fit around half the screen width/height
+                Image img = icon.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
+                imageLabel.setIcon(new ImageIcon(img));
+                imageLabel.setText(""); // Clear text if image loaded
+            } else {
+                imageLabel.setIcon(null);
+                imageLabel.setText("Image not found");
+            }
+        } else {
+            imageLabel.setIcon(null);
+            imageLabel.setText("No Image");
+        }
+    }
+}

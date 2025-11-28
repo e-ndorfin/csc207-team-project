@@ -70,7 +70,7 @@ public class Application extends JFrame {
         // Initialize views
         mainMenu = new MainMenu(this);
         game = new Game(gameController, gameViewModel);
-        gameResult = new GameResult(this);
+        gameResult = new GameResult(this, gameResultViewModel);
         gallery = new Gallery(galleryWindowController); 
         settings = new Settings(this, userSettingsDataBase);
 
