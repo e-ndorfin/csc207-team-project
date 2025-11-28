@@ -13,13 +13,22 @@ import javax.imageio.ImageIO;
 import com.sketchandguess.entities.Difficulty;
 import com.sketchandguess.usecases.RecordGameUseCase.RecordGameInputBoundary;
 import com.sketchandguess.usecases.RecordGameUseCase.RecordGameInputData;
+import com.sketchandguess.usecases.gameplay.GameplayInputBoundary;
+import com.sketchandguess.usecases.gameplay.GameplayInputData;
 
 public class GameController {
 
     private final RecordGameInputBoundary recordGameInteractor;
+    private final GameplayInputBoundary gameplayInteractor;
 
-    public GameController(RecordGameInputBoundary recordGameInteractor) {
+    public GameController(RecordGameInputBoundary recordGameInteractor, GameplayInputBoundary gameplayInteractor) {
         this.recordGameInteractor = recordGameInteractor;
+        this.gameplayInteractor = gameplayInteractor;
+    }
+
+    public void checkPrediction(BufferedImage image, String prompt) {
+        GameplayInputData inputData = new GameplayInputData(image, prompt);
+        gameplayInteractor.execute(inputData);
     }
 
     /**
@@ -33,13 +42,13 @@ public class GameController {
      * @param difficulty The difficulty level.
      * @param timeTaken  The time taken by the user.
      * @param timeLimit  The total time limit.
+     * @param hasWon     Whether the user won the game.
      */
-    public void executeGameResult(BufferedImage image, String prompt, Difficulty difficulty, double timeTaken, double timeLimit) {
+    public void executeGameResult(BufferedImage image, String prompt, Difficulty difficulty, double timeTaken, double timeLimit, boolean hasWon) {
         String imagePath = saveImage(image);
 
-        // AI guess placeholder
-        String aiGuess = "I'm still learning..."; // TODO: Integrate AI call here
-        boolean hasWon = true; // TODO: Determine win/loss based on AI guess
+        // AI guess placeholder - this is now handled by gameplay loop, but we need it for record
+        String aiGuess = hasWon ? prompt : "Incorrect"; // Simple placeholder for record
 
         RecordGameInputData inputData = new RecordGameInputData(
                 hasWon,

@@ -1,5 +1,9 @@
 package com.sketchandguess.interface_adapters.game;
 
+import com.sketchandguess.entities.Prediction;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Store the data need to show in game panel
  */
@@ -9,6 +13,8 @@ public class GameState {
     private String difficulty = "";
     private double timeLimitSeconds = 0;
     private double timeLeftSeconds = 0;
+    private List<Prediction> predictions = new ArrayList<>();
+    private boolean hasWon = false;
 
     public String getPrompt() {
         return prompt;
@@ -40,5 +46,21 @@ public class GameState {
 
     public void setTimeLeftSeconds(double timeLeftSeconds) {
         this.timeLeftSeconds = timeLeftSeconds;
+    }
+
+    public List<Prediction> getPredictions() {
+        return predictions;
+    }
+
+    public void setPredictions(List<Prediction> predictions) {
+        this.predictions = predictions;
+    }
+
+    public boolean isHasWon() {
+        return hasWon;
+    }
+
+    public void setHasWon(boolean hasWon) {
+        this.hasWon = hasWon;
     }
 }

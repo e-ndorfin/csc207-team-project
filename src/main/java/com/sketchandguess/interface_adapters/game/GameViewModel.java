@@ -2,9 +2,7 @@ package com.sketchandguess.interface_adapters.game;
 
 import com.sketchandguess.interface_adapters.ViewModel;
 
-import java.beans.PropertyChangeListener;
-
-public class GameViewModel extends ViewModel {
+public class GameViewModel extends ViewModel<GameState> {
 
     public static final String VIEW_NAME = "Game";
 
@@ -20,6 +18,7 @@ public class GameViewModel extends ViewModel {
 
     public void setState(GameState newstate) {
         this.state = newstate;
+        super.setState(newstate);
         firePropertyChange("state");
     }
 }
