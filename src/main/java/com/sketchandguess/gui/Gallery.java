@@ -27,9 +27,11 @@ public class Gallery extends JPanel {
     private final JLabel emptyLabel = new JLabel(emptyGallery, SwingConstants.CENTER);
 
     private final GalleryWindowController galleryWindowController;
+    private final Application app;
 
 
-    public Gallery(GalleryWindowController galleryWindowController) {
+    public Gallery(Application app, GalleryWindowController galleryWindowController) {
+        this.app = app;
         this.galleryWindowController = galleryWindowController;
         this.setLayout(new BorderLayout());
         this.mainDataBase = new GameDataBase();
@@ -76,7 +78,7 @@ public class Gallery extends JPanel {
         });
 
         backButton.addActionListener(e -> {
-            galleryWindowController.goBackToMainMenu();
+            app.showMainmenu();
         });
     }
     
@@ -121,7 +123,7 @@ public class Gallery extends JPanel {
 
                 // Add an action listener to handle clicks
                 imageButton.addActionListener(e -> {
-                    galleryWindowController.selectGameRecord(record);
+                    galleryWindowController.setRecord(record);
                 });
 
                 galleryGridPanel.add(imageButton);

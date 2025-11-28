@@ -21,6 +21,7 @@ public class GalleryWindowPresenter implements SelectGameRecordOutputBoundary {
         state.setDateText(record.getDate() != null ? DATE_FORMATTER.format(record.getDate()) : "");  // date if not null, empty string if null
         state.setPromptText(record.getPrompt() != null ? record.getPrompt() : "");  // prompt if not null, empty string if null
         state.setOutcomeText(record.getHasWon() ? "win" : "loss");  // win if True, loss if False
+        state.setErrorMessage("");  // Clear any previous error message when opening a new record
         viewModel.setState(state);
         viewModel.firePropertyChange();
     }
@@ -36,5 +37,26 @@ public class GalleryWindowPresenter implements SelectGameRecordOutputBoundary {
         state.setOutcomeText("");
         viewModel.setState(state);
         viewModel.firePropertyChange();
+    }
+
+    public void presentError(String error) {
+        GalleryWindowState state = viewModel.getState();
+        state.setErrorMessage(error);
+        viewModel.setState(state);
+        viewModel.firePropertyChange();
+    }
+
+    public void presentRecord(GameRecord record) {
+        if (record == null) {
+            GalleryWindowState state = viewModel.getState();
+            state.setCurrentRecord(null);
+            state.setDateText("");
+            state.setPromptText("");
+            state.setOutcomeText("");
+            viewModel.setState(state);
+            viewModel.firePropertyChange();
+        } else {
+            prepareSuccessView(record);
+        }
     }
 }

@@ -7,6 +7,8 @@ import com.sketchandguess.entities.GameRecord;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -23,6 +25,7 @@ public class PictureWindow extends JFrame implements PropertyChangeListener {
     private JLabel errorLabel;
     private JButton saveButton;
     private JButton deleteButton;
+    private JScrollPane imageScroll;
 
     public PictureWindow(GalleryWindowViewModel GalleryWindowViewModel,
                          GalleryWindowController GalleryWindowController) {
@@ -35,6 +38,14 @@ public class PictureWindow extends JFrame implements PropertyChangeListener {
         setSize(800, 600);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        
+        // Clear the current record when window closes so it can be reopened
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosed(WindowEvent e) {
+                GalleryWindowController.setRecord(null);
+            }
+        });
 
         initComponents();
         layoutComponents();
@@ -88,8 +99,14 @@ public class PictureWindow extends JFrame implements PropertyChangeListener {
     private void layoutComponents() {
         setLayout(new BorderLayout(16, 16));
 
-        JScrollPane imageScroll = new JScrollPane(imageLabel);
+        imageScroll = new JScrollPane(imageLabel);
         imageScroll.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 8));
+        
+        // Configure scroll speed (unit increment in pixels per wheel click)
+        // Adjust this value to make scrolling faster (larger) or slower (smaller)
+        int scrollSpeed = 20; // pixels per wheel click
+        imageScroll.getVerticalScrollBar().setUnitIncrement(scrollSpeed);
+        imageScroll.getHorizontalScrollBar().setUnitIncrement(scrollSpeed);
 
         JPanel statsPanel = new JPanel();
         statsPanel.setLayout(new BoxLayout(statsPanel, BoxLayout.Y_AXIS));
@@ -147,9 +164,9 @@ public class PictureWindow extends JFrame implements PropertyChangeListener {
     private void loadImage(String imagePath) {
         if (imagePath != null) {
             ImageIcon icon = new ImageIcon(imagePath);
-            Image scaled = icon.getImage().getScaledInstance(
-                    600, -1, Image.SCALE_SMOOTH);
-            imageLabel.setIcon(new ImageIcon(scaled));
+            // Scale to fit around half the screen width/height
+            Image img = icon.getImage().getScaledInstance(400, 400, Image.SCALE_SMOOTH);
+            imageLabel.setIcon(new ImageIcon(img));
             imageLabel.setText(null);
         } else {
             clearImage();

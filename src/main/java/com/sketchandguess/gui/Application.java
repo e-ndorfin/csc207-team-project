@@ -4,17 +4,20 @@ import com.sketchandguess.api.APIHandler;
 import com.sketchandguess.api.HuggingFaceAPICaller;
 import com.sketchandguess.database.GameDataBase;
 import com.sketchandguess.database.UserSettingsDataBase;
+import com.sketchandguess.entities.GameRecord;
 import com.sketchandguess.interface_adapters.ViewManagerModel;
 import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowController;
 import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowPresenter;
+import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowState;
 import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowViewModel;
 import com.sketchandguess.interface_adapters.game.GameController;
 import com.sketchandguess.interface_adapters.game.GamePresenter;
 import com.sketchandguess.interface_adapters.game.GameResultViewModel;
 import com.sketchandguess.interface_adapters.game.GameViewModel;
+import com.sketchandguess.usecases.DeleteGameUseCase;
 import com.sketchandguess.usecases.RecordGameUseCase.RecordGameUseCase;
+import com.sketchandguess.usecases.SaveImageToUserUseCase;
 import com.sketchandguess.usecases.gameplay.GameplayUseCase;
-import com.sketchandguess.usecases.select_game.SelectGameRecordUseCase;
 
 import javax.swing.*;
 import java.awt.*;
@@ -42,14 +45,22 @@ public class Application extends JFrame {
         // Initialize ViewManagerModel
         viewManagerModel = new ViewManagerModel(); 
 
+        // Initialize database
+        userSettingsDataBase = UserSettingsDataBase.getInstance();
+        gameDataBase = new GameDataBase();
+        
         // Initialize GalleryWindow components
         galleryWindowViewModel = new GalleryWindowViewModel();
         GalleryWindowPresenter galleryWindowPresenter = new GalleryWindowPresenter(galleryWindowViewModel);
-        SelectGameRecordUseCase selectGameRecordUseCase = new SelectGameRecordUseCase(galleryWindowPresenter);
-        galleryWindowController = new GalleryWindowController(selectGameRecordUseCase, viewManagerModel);
-        
-        userSettingsDataBase = UserSettingsDataBase.getInstance();
-        gameDataBase = new GameDataBase(); 
+        GalleryWindowState galleryWindowState = galleryWindowViewModel.getState();
+        DeleteGameUseCase deleteGameUseCase = new DeleteGameUseCase(gameDataBase);
+        SaveImageToUserUseCase saveImageToUserUseCase = new SaveImageToUserUseCase();
+        galleryWindowController = new GalleryWindowController(
+            galleryWindowState,
+            galleryWindowPresenter,
+            deleteGameUseCase,
+            saveImageToUserUseCase
+        ); 
 
         // Initialize API components
         APIHandler apiHandler = new APIHandler("https://zachttang-quickdraw.hf.space/predict");
@@ -71,18 +82,32 @@ public class Application extends JFrame {
         mainMenu = new MainMenu(this);
         game = new Game(gameController, gameViewModel);
         gameResult = new GameResult(this, gameResultViewModel);
-        gallery = new Gallery(galleryWindowController); 
+        gallery = new Gallery(this, galleryWindowController); 
         settings = new Settings(this, userSettingsDataBase);
 
         // Add PropertyChangeListener to GalleryWindowViewModel
+        // Track the previous record to only open PictureWindow when a new record is selected
+        final GameRecord[] previousRecord = {null};
         galleryWindowViewModel.addPropertyChangeListener(new PropertyChangeListener() {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (evt.getPropertyName().equals("state")) {
-                    if (galleryWindowViewModel.getState().getCurrentRecord() != null) {
+                    GalleryWindowState newState = galleryWindowViewModel.getState();
+                    GameRecord currentRecord = newState.getCurrentRecord();
+                    
+                    // Open PictureWindow when a different record is selected
+                    // (either going from null to a record, or switching to a different record)
+                    boolean recordChanged = (previousRecord[0] == null && currentRecord != null) ||
+                                          (previousRecord[0] != null && currentRecord != null && 
+                                           !previousRecord[0].equals(currentRecord));
+                    
+                    if (recordChanged) {
                         PictureWindow pictureWindow = new PictureWindow(galleryWindowViewModel, galleryWindowController);
                         pictureWindow.setVisible(true);
                     }
+                    
+                    // Update the previous record
+                    previousRecord[0] = currentRecord;
                 }
             }
         });
