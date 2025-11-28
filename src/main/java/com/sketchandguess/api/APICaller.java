@@ -1,7 +1,7 @@
 package com.sketchandguess.api;
 
-import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 public interface APICaller {
-    String call(byte[] imageData) throws IOException, InterruptedException;
+    CompletableFuture<String> call(byte[] imageData);
 }

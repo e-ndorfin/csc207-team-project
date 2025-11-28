@@ -1,6 +1,5 @@
 package com.sketchandguess.api;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -9,6 +8,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 
 public class HuggingFaceAPICaller implements APICaller {
     private final APIHandler apiHandler;
@@ -18,7 +18,7 @@ public class HuggingFaceAPICaller implements APICaller {
     }
 
     @Override
-    public String call(byte[] imageData) throws IOException, InterruptedException {
+    public CompletableFuture<String> call(byte[] imageData) {
         String boundary = "Boundary-" + UUID.randomUUID().toString();
         
         HttpRequest request = HttpRequest.newBuilder()
@@ -27,14 +27,18 @@ public class HuggingFaceAPICaller implements APICaller {
                 .POST(ofMimeMultipartData(imageData, boundary))
                 .build();
 
-        HttpResponse<String> response = HttpClient.newHttpClient()
-                .send(request, HttpResponse.BodyHandlers.ofString());
-
-        if (response.statusCode() != 200) {
-            throw new IOException("Request failed with status code: " + response.statusCode() + " and body: " + response.body());
-        }
-
-        return response.body();
+        return HttpClient.newHttpClient()
+                .sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenApply(response -> {
+                    if (response.statusCode() != 200) {
+                        throw new RuntimeException("Request failed with status code: " + response.statusCode() + " and body: " + response.body());
+                    }
+                    return response.body();
+                })
+                .exceptionally(e -> {
+                    System.err.println("API call failed: " + e.getMessage());
+                    return "[]";
+                });
     }
 
     private HttpRequest.BodyPublisher ofMimeMultipartData(byte[] imageData, String boundary) {
