@@ -16,8 +16,8 @@ import java.awt.*;
  */
 public class Settings extends JPanel {
 
-    private static final int MIN_TIME_LIMIT = 30;
-    private static final int MAX_TIME_LIMIT = 300;
+    private static final int MIN_TIME_LIMIT = 15;
+    private static final int MAX_TIME_LIMIT = 45;
 
     private final Application app;
     private final UserSettingsDataBase userSettingsDataBase;
@@ -65,8 +65,8 @@ public class Settings extends JPanel {
         timePanel.add(timeLimitLabel, BorderLayout.NORTH);
 
         timeSlider = new JSlider(MIN_TIME_LIMIT, MAX_TIME_LIMIT);
-        timeSlider.setMajorTickSpacing(30);
-        timeSlider.setMinorTickSpacing(10);
+        timeSlider.setMajorTickSpacing(10);
+        timeSlider.setMinorTickSpacing(5);
         timeSlider.setPaintTicks(true);
         timeSlider.setPaintLabels(true);
 
@@ -115,7 +115,7 @@ public class Settings extends JPanel {
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         JButton saveButton = new JButton("Save");
-        JButton backButton = new JButton("Back");
+        JButton backButton = new JButton("Back To Main Menu");
 
         buttonPanel.add(saveButton);
         buttonPanel.add(backButton);
@@ -133,6 +133,17 @@ public class Settings extends JPanel {
         // Listeners
         saveButton.addActionListener(e -> onSaveClicked());
         backButton.addActionListener(e -> app.showMainmenu());
+    }
+
+    /**
+     * Refreshes the settings panel by clearing any messages and reloading current settings.
+     * Should be called when the panel is shown.
+     */
+    public void refresh() {
+        // Clear any previous messages
+        messageLabel.setText(" ");
+        messageLabel.setForeground(Color.BLACK); // Reset to default color
+        loadCurrentSettings();
     }
 
     /**

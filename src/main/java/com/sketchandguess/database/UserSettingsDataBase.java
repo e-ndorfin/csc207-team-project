@@ -1,12 +1,15 @@
 package com.sketchandguess.database;
 
 import com.sketchandguess.entities.UserSettings;
+import org.json.JSONObject;
 
-import java.util.prefs.Preferences;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
- * Singleton + persistent UserSettings database.
- * Uses Java Preferences to store settings between app runs.
+ * Uses JSON file to store settings between app runs.
  */
 public class UserSettingsDataBase {
 
@@ -18,42 +21,77 @@ public class UserSettingsDataBase {
     }
 
     // ---- Persistence ----
-    private static final String PREF_NODE = "com.sketchandguess.settings";
     private static final String KEY_USER_ID = "userId";
     private static final String KEY_TIME_LIMIT = "defaultTimeLimit";
     private static final String KEY_EXPORT = "defaultExportFormat";
     private static final String KEY_DIFFICULTY = "difficultyName";
+    private final String jsonPath = "src/main/resources/user_settings.json";
 
-    private final Preferences prefs;
     private UserSettings currentSettings;
 
     // private constructor (singleton)
     private UserSettingsDataBase() {
-        prefs = Preferences.userRoot().node(PREF_NODE);
-        loadFromPrefs();
+        loadFromJson();
     }
 
     /**
-     * Load stored settings (or defaults if none stored yet).
+     * Load stored settings from JSON file (or defaults if file doesn't exist or parsing fails).
      */
-    private void loadFromPrefs() {
-        String userId = prefs.get(KEY_USER_ID, "default-user");
-        double timeLimit = prefs.getDouble(KEY_TIME_LIMIT, 60);
-        String exportFormat = prefs.get(KEY_EXPORT, "png");
-        String difficulty = prefs.get(KEY_DIFFICULTY, "medium");
-
-        currentSettings = new UserSettings(userId, timeLimit, exportFormat);
-        currentSettings.setDifficultyName(difficulty);
+    private void loadFromJson() {
+        try {
+            Path path = Paths.get(jsonPath);
+            if (Files.exists(path)) {
+                String jsonContent = Files.readString(path);
+                JSONObject json = new JSONObject(jsonContent);
+                
+                String userId = json.optString(KEY_USER_ID, "default-user");
+                double timeLimit = json.optDouble(KEY_TIME_LIMIT, 60.0);
+                String exportFormat = json.optString(KEY_EXPORT, "png");
+                String difficulty = json.optString(KEY_DIFFICULTY, "medium");
+                
+                currentSettings = new UserSettings(userId, timeLimit, exportFormat);
+                currentSettings.setDifficultyName(difficulty);
+            } else {
+                // File doesn't exist, use defaults
+                currentSettings = new UserSettings("default-user", 60.0, "png");
+                currentSettings.setDifficultyName("medium");
+            }
+        } catch (IOException e) {
+            // File read error, use defaults
+            System.err.println("Error reading user settings JSON file: " + e.getMessage());
+            currentSettings = new UserSettings("default-user", 60.0, "png");
+            currentSettings.setDifficultyName("medium");
+        } catch (Exception e) {
+            // JSON parsing error, use defaults
+            System.err.println("Error parsing user settings JSON: " + e.getMessage());
+            currentSettings = new UserSettings("default-user", 60.0, "png");
+            currentSettings.setDifficultyName("medium");
+        }
     }
 
     /**
-     * Save currentSettings into Preferences.
+     * Save currentSettings to JSON file.
      */
-    private void saveToPrefs() {
-        prefs.put(KEY_USER_ID, currentSettings.getUserId());
-        prefs.putDouble(KEY_TIME_LIMIT, currentSettings.getDefaultTimeLimit());
-        prefs.put(KEY_EXPORT, currentSettings.getDefaultExportFormat());
-        prefs.put(KEY_DIFFICULTY, currentSettings.getDifficultyName());
+    private void saveToJson() {
+        try {
+            JSONObject json = new JSONObject();
+            json.put(KEY_USER_ID, currentSettings.getUserId());
+            json.put(KEY_TIME_LIMIT, currentSettings.getDefaultTimeLimit());
+            json.put(KEY_EXPORT, currentSettings.getDefaultExportFormat());
+            json.put(KEY_DIFFICULTY, currentSettings.getDifficultyName());
+            
+            Path path = Paths.get(jsonPath);
+            // Ensure parent directory exists
+            Path parentDir = path.getParent();
+            if (parentDir != null && !Files.exists(parentDir)) {
+                Files.createDirectories(parentDir);
+            }
+            
+            // Write JSON with indentation for readability
+            Files.writeString(path, json.toString(2));
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to save user settings to JSON file", e);
+        }
     }
 
     public UserSettings getUserSettings() {
@@ -65,6 +103,6 @@ public class UserSettingsDataBase {
             throw new IllegalArgumentException("UserSettings cannot be null.");
         }
         currentSettings = settings;
-        saveToPrefs(); // <-- persist
+        saveToJson(); // <-- persist
     }
 }
