@@ -11,6 +11,7 @@ public class GameRecord {
     private double timeLimit;
     private Difficulty difficulty;
     private String prompt;
+    private String aiGuess;
 
     public GameRecord(String imagePath,
                       LocalDate date,
@@ -18,7 +19,8 @@ public class GameRecord {
                       double timeTaken,
                       double timeLimit,
                       Difficulty difficulty,
-                      String prompt) {
+                      String prompt,
+                      String aiGuess) {
         this.imagePath = imagePath;
         this.date = date;
         this.hasWon = hasWon;
@@ -26,6 +28,7 @@ public class GameRecord {
         this.timeLimit = timeLimit;
         this.difficulty = difficulty;
         this.prompt = prompt;
+        this.aiGuess = aiGuess;
     }
 
     /**
@@ -91,5 +94,13 @@ public class GameRecord {
      */
     public String getPrompt() {
         return prompt;
+    }
+
+    /**
+     * Returns the AI's guess.
+     * @return the AI's guess.
+     */
+    public String getAiGuess() {
+        return aiGuess;
     }
 }
