@@ -7,11 +7,12 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class SaveImageToUserUseCase {
+public class SaveImageToUserUseCase implements SaveImageToUserInputBoundary {
     /**
      * @param imagePath the path where the gallery save the image
      * @return true if saved, false if failed to save the image
      */
+    @Override
     public boolean save (String imagePath) throws IOException {
         BufferedImage image = null;
         try {
