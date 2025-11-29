@@ -134,8 +134,9 @@ public class GameDataBase implements GameDataAccessInterface {
 
     public Boolean DeleteGame(GameRecord DeletedGame) {
         try {
-            this.GameData.remove(DeletedGame);
-            return Boolean.TRUE;
+            // ArrayList.remove() returns true if the element was found and removed, false otherwise
+            boolean removed = this.GameData.remove(DeletedGame);
+            return removed ? Boolean.TRUE : Boolean.FALSE;
         } catch (Exception e) {
             return Boolean.FALSE;
         }
