@@ -14,6 +14,8 @@ import com.sketchandguess.interface_adapters.game.GameController;
 import com.sketchandguess.interface_adapters.game.GamePresenter;
 import com.sketchandguess.interface_adapters.game.GameResultViewModel;
 import com.sketchandguess.interface_adapters.game.GameViewModel;
+import com.sketchandguess.interface_adapters.menu.MenuController;
+import com.sketchandguess.interface_adapters.menu.MenuViewModel;
 import com.sketchandguess.usecases.deletegame.DeleteGameUseCase;
 import com.sketchandguess.usecases.recordgame.RecordGameUseCase;
 import com.sketchandguess.usecases.saveimagetouser.SaveImageToUserUseCase;
@@ -21,7 +23,6 @@ import com.sketchandguess.usecases.gameplay.GameplayUseCase;
 import com.sketchandguess.usecases.selectgame.SelectGameRecordUseCase;
 
 import javax.swing.*;
-import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
@@ -82,8 +83,12 @@ public class Application extends JFrame {
         
         GameController gameController = new GameController(recordGameUseCase, gameplayUseCase);
 
+        // Initialize Menu components
+        MenuViewModel menuViewModel = new MenuViewModel();
+        MenuController menuController = new MenuController(viewManagerModel);
+
         // Initialize views
-        mainMenu = new MainMenu(this);
+        mainMenu = new MainMenu(menuController, menuViewModel);
         game = new Game(gameController, gameViewModel);
         gameResult = new GameResult(this, gameResultViewModel);
         gallery = new Gallery(this, galleryWindowController); 
@@ -127,7 +132,7 @@ public class Application extends JFrame {
                             showMainmenu();
                             break;
                         case "Game":
-                            showGame();
+                            startNewGame();
                             break;
                         case "Gallery":
                             showGallery();
