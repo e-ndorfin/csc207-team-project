@@ -40,3 +40,6 @@ build/
 .history
 .aider*
 *.png
+
+src/main/resources/games.csv
+src/main/resources/user_settings.json
