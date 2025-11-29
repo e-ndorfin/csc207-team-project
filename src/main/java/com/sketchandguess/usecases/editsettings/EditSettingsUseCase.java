@@ -5,49 +5,80 @@ import com.sketchandguess.entities.UserSettings;
 
 /**
  * Use case for editing the user's settings (time limit and difficulty).
+ * Implements the InputBoundary pattern.
  */
-public class EditSettingsUseCase {
+public class EditSettingsUseCase implements EditSettingsInputBoundary {
 
     private static final int MIN_TIME_LIMIT = 15;
     private static final int MAX_TIME_LIMIT = 45;
 
     private final UserSettingsDataBase userSettingsDataBase;
+    private final EditSettingsOutputBoundary presenter;
 
     /**
-     * Constructs an EditSettingsUseCase with the given database.
+     * Constructs an EditSettingsUseCase with the given database and presenter.
      *
      * @param userSettingsDataBase the database used to load and save settings
+     * @param presenter the output boundary to present results
      */
-    public EditSettingsUseCase(UserSettingsDataBase userSettingsDataBase) {
+    public EditSettingsUseCase(UserSettingsDataBase userSettingsDataBase, EditSettingsOutputBoundary presenter) {
         this.userSettingsDataBase = userSettingsDataBase;
+        this.presenter = presenter;
     }
 
-    /**
-     * Edits the settings. Validates input and then saves through the database.
-     *
-     * @param timeLimitInSeconds new time limit (seconds)
-     * @param difficultyName     new difficulty ("easy", "medium", "hard")
-     * @throws IllegalArgumentException if the input is invalid
-     */
-    public void editSettings(int timeLimitInSeconds, String difficultyName) {
+    @Override
+    public void execute(EditSettingsInputData inputData) {
         // --- Validation ---
-        if (timeLimitInSeconds < MIN_TIME_LIMIT || timeLimitInSeconds > MAX_TIME_LIMIT) {
-            throw new IllegalArgumentException(
-                    "Time limit must be between " + MIN_TIME_LIMIT + " and " + MAX_TIME_LIMIT + " seconds."
+        if (inputData.timeLimitInSeconds < MIN_TIME_LIMIT || inputData.timeLimitInSeconds > MAX_TIME_LIMIT) {
+            EditSettingsOutputData errorData = new EditSettingsOutputData(
+                false,
+                "Time limit must be between " + MIN_TIME_LIMIT + " and " + MAX_TIME_LIMIT + " seconds.",
+                0.0,
+                ""
             );
+            presenter.present(errorData);
+            return;
         }
 
-        if (difficultyName == null || difficultyName.trim().isEmpty()) {
-            throw new IllegalArgumentException("Difficulty cannot be empty.");
+        if (inputData.difficultyName == null || inputData.difficultyName.trim().isEmpty()) {
+            EditSettingsOutputData errorData = new EditSettingsOutputData(
+                false,
+                "Difficulty cannot be empty.",
+                0.0,
+                ""
+            );
+            presenter.present(errorData);
+            return;
         }
 
-        // --- Retrieve and modify entity ---
-        UserSettings settings = userSettingsDataBase.getUserSettings();
-        settings.setDefaultTimeLimit(timeLimitInSeconds);
-        settings.setDifficultyName(difficultyName.toLowerCase());
+        try {
+            // --- Retrieve and modify entity ---
+            UserSettings settings = userSettingsDataBase.getUserSettings();
+            settings.setDefaultTimeLimit(inputData.timeLimitInSeconds);
+            settings.setDifficultyName(inputData.difficultyName);
 
-        // --- Save updated settings ---
-        userSettingsDataBase.saveUserSettings(settings);
+            // --- Save updated settings ---
+            userSettingsDataBase.saveUserSettings(settings);
+
+            // --- Success response ---
+            EditSettingsOutputData successData = new EditSettingsOutputData(
+                true,
+                null,
+                settings.getDefaultTimeLimit(),
+                settings.getDifficultyName()
+            );
+            presenter.present(successData);
+
+        } catch (Exception e) {
+            // Handle any unexpected errors
+            EditSettingsOutputData errorData = new EditSettingsOutputData(
+                false,
+                "Failed to save settings: " + e.getMessage(),
+                0.0,
+                inputData.difficultyName
+            );
+            presenter.present(errorData);
+        }
     }
 }
 
