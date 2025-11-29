@@ -16,7 +16,12 @@ import com.sketchandguess.interface_adapters.game.GameResultViewModel;
 import com.sketchandguess.interface_adapters.game.GameViewModel;
 import com.sketchandguess.interface_adapters.menu.MenuController;
 import com.sketchandguess.interface_adapters.menu.MenuViewModel;
+import com.sketchandguess.interface_adapters.settings.SettingsController;
+import com.sketchandguess.interface_adapters.settings.SettingsPresenter;
+import com.sketchandguess.interface_adapters.settings.SettingsViewModel;
 import com.sketchandguess.usecases.deletegame.DeleteGameUseCase;
+import com.sketchandguess.usecases.editsettings.EditSettingsUseCase;
+import com.sketchandguess.usecases.retrievesettings.RetrieveSettingsUseCase;
 import com.sketchandguess.usecases.recordgame.RecordGameUseCase;
 import com.sketchandguess.usecases.saveimagetouser.SaveImageToUserUseCase;
 import com.sketchandguess.usecases.gameplay.GameplayUseCase;
@@ -83,6 +88,14 @@ public class Application extends JFrame {
         
         GameController gameController = new GameController(recordGameUseCase, gameplayUseCase);
 
+        SettingsViewModel settingsViewModel = new SettingsViewModel();
+        SettingsPresenter settingsPresenter = new SettingsPresenter(settingsViewModel);
+        
+        EditSettingsUseCase editSettingsUseCase = new EditSettingsUseCase(userSettingsDataBase, settingsPresenter);
+        RetrieveSettingsUseCase retrieveSettingsUseCase = new RetrieveSettingsUseCase(userSettingsDataBase, settingsPresenter);
+        
+        SettingsController settingsController = new SettingsController(editSettingsUseCase, retrieveSettingsUseCase);
+
         // Initialize Menu components
         MenuViewModel menuViewModel = new MenuViewModel();
         MenuController menuController = new MenuController(viewManagerModel);
@@ -92,7 +105,7 @@ public class Application extends JFrame {
         game = new Game(gameController, gameViewModel);
         gameResult = new GameResult(this, gameResultViewModel);
         gallery = new Gallery(this, galleryWindowController); 
-        settings = new Settings(this, userSettingsDataBase);
+        settings = new Settings(this, settingsController, settingsViewModel);
 
         // Add PropertyChangeListener to GalleryWindowViewModel
         // Track the previous record to only open PictureWindow when a new record is selected
@@ -126,13 +139,19 @@ public class Application extends JFrame {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (evt.getPropertyName().equals("view")) {
+                    String previousView = (String) evt.getOldValue();
                     String activeView = (String) evt.getNewValue();
                     switch (activeView) {
                         case "MainMenu":
                             showMainmenu();
                             break;
                         case "Game":
-                            startNewGame();
+                            // If coming from MainMenu, start a new game. Otherwise just show game.
+                            if ("MainMenu".equals(previousView)) {
+                                startNewGame();
+                            } else {
+                                showGame();
+                            }
                             break;
                         case "Gallery":
                             showGallery();

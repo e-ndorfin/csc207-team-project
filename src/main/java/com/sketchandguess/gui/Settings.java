@@ -1,28 +1,28 @@
 package com.sketchandguess.gui;
 
-import com.sketchandguess.database.UserSettingsDataBase;
-import com.sketchandguess.entities.UserSettings;
-import com.sketchandguess.usecases.editsettings.EditSettingsUseCase;
-import com.sketchandguess.usecases.retrievesettings.RetrieveSettingsUseCase;
-
+import com.sketchandguess.interface_adapters.settings.SettingsController;
+import com.sketchandguess.interface_adapters.settings.SettingsViewModel;
+import com.sketchandguess.interface_adapters.settings.SettingsState;
+import java.awt.*;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import java.awt.*;
 
 /**
  * Settings screen: lets the user change the default game time limit
  * and difficulty (Easy / Medium / Hard).
+ * Implements the Observer pattern via PropertyChangeListener.
  */
-public class Settings extends JPanel {
+public class Settings extends JPanel implements PropertyChangeListener {
 
     private static final int MIN_TIME_LIMIT = 15;
     private static final int MAX_TIME_LIMIT = 45;
 
     private final Application app;
-    private final UserSettingsDataBase userSettingsDataBase;
-    private final EditSettingsUseCase editSettingsUseCase;
-    private final RetrieveSettingsUseCase retrieveSettingsUseCase;
+    private final SettingsController controller;
+    private final SettingsViewModel viewModel;
 
     // Timer slider + numeric label
     private final JSlider timeSlider;
@@ -38,14 +38,17 @@ public class Settings extends JPanel {
     /**
      * Constructs the Settings panel.
      *
-     * @param app                  the main Application, used to navigate back
-     * @param userSettingsDataBase the database storing user settings
+     * @param app       the main Application, used to navigate back
+     * @param controller the controller to execute use cases
+     * @param viewModel the view model to observe for state changes
      */
-    public Settings(Application app, UserSettingsDataBase userSettingsDataBase) {
+    public Settings(Application app, SettingsController controller, SettingsViewModel viewModel) {
         this.app = app;
-        this.userSettingsDataBase = userSettingsDataBase;
-        this.editSettingsUseCase = new EditSettingsUseCase(userSettingsDataBase);
-        this.retrieveSettingsUseCase = new RetrieveSettingsUseCase(userSettingsDataBase);
+        this.controller = controller;
+        this.viewModel = viewModel;
+        
+        // Add this view as a listener to the view model
+        viewModel.addPropertyChangeListener(this);
 
         setLayout(new BorderLayout(10, 10));
 
@@ -127,7 +130,7 @@ public class Settings extends JPanel {
 
         add(bottomPanel, BorderLayout.SOUTH);
 
-        // Load initial values using the use case
+        // Load initial values using the controller
         loadCurrentSettings();
 
         // Listeners
@@ -135,39 +138,35 @@ public class Settings extends JPanel {
         backButton.addActionListener(e -> app.showMainmenu());
     }
 
-    /**
-     * Refreshes the settings panel by clearing any messages and reloading current settings.
-     * Should be called when the panel is shown.
-     */
-    public void refresh() {
-        // Clear any previous messages
-        messageLabel.setText(" ");
-        messageLabel.setForeground(Color.BLACK); // Reset to default color
-        loadCurrentSettings();
+    @Override
+    public void propertyChange(PropertyChangeEvent evt) {
+        if ("state".equals(evt.getPropertyName())) {
+            SettingsState state = viewModel.getState();
+            if (state != null) {
+                updateUIFromState(state);
+            }
+        }
     }
 
     /**
-     * Reads the current settings using the RetrieveSettingsUseCase
-     * and initializes the controls.
+     * Updates the UI components from the current SettingsState.
      */
-    private void loadCurrentSettings() {
-        UserSettings settings = retrieveSettingsUseCase.retrieveSettings();
-
-        // --- Time limit ---
-        int timeLimit = (int) Math.round(settings.getDefaultTimeLimit());
-        if (timeLimit < MIN_TIME_LIMIT) {
-            timeLimit = MIN_TIME_LIMIT;
-        } else if (timeLimit > MAX_TIME_LIMIT) {
-            timeLimit = MAX_TIME_LIMIT;
+    private void updateUIFromState(SettingsState state) {
+        // Update time slider and label
+        double timeLimit = state.getDefaultTimeLimit();
+        int timeValue = (int) Math.round(timeLimit);
+        if (timeValue < MIN_TIME_LIMIT) {
+            timeValue = MIN_TIME_LIMIT;
+        } else if (timeValue > MAX_TIME_LIMIT) {
+            timeValue = MAX_TIME_LIMIT;
         }
-        timeSlider.setValue(timeLimit);
-        timeValueLabel.setText(timeLimit + " s");
+        timeSlider.setValue(timeValue);
+        timeValueLabel.setText(timeValue + " s");
 
-        // --- Difficulty (stored as a String in UserSettings) ---
-        String difficultyName = settings.getDifficultyName(); // may be null if not set yet
-
-        if (difficultyName == null) {
-            mediumButton.setSelected(true); // default
+        // Update difficulty buttons
+        String difficultyName = state.getDifficultyName();
+        if (difficultyName == null || difficultyName.equalsIgnoreCase("medium")) {
+            mediumButton.setSelected(true);
         } else if (difficultyName.equalsIgnoreCase("easy")) {
             easyButton.setSelected(true);
         } else if (difficultyName.equalsIgnoreCase("hard")) {
@@ -175,11 +174,51 @@ public class Settings extends JPanel {
         } else {
             mediumButton.setSelected(true);
         }
+
+        // Always update the message label based on current state
+        String successMsg = state.getSuccessMessage();
+        String errorMsg = state.getErrorMessage();
+        
+        if (!successMsg.isEmpty()) {
+            // Show success message
+            messageLabel.setForeground(new Color(0, 128, 0)); // dark green
+            messageLabel.setText(successMsg);
+        } else if (!errorMsg.isEmpty()) {
+            // Show error message
+            messageLabel.setForeground(Color.RED);
+            messageLabel.setText(errorMsg);
+        } else {
+            // No message - clear the label
+            messageLabel.setText(" ");
+            messageLabel.setForeground(Color.BLACK);
+        }
+    }
+
+    /**
+     * Refreshes the settings panel by reloading current settings.
+     * Should be called when the panel is shown.
+     */
+    public void refresh() {
+        // Clear any existing messages before refreshing
+        SettingsState state = viewModel.getState();
+        if (state != null) {
+            state.setSuccessMessage("");
+            state.setErrorMessage("");
+            viewModel.firePropertyChange("state");
+        }
+        loadCurrentSettings();
+    }
+
+    /**
+     * Loads the current settings using the controller.
+     */
+    private void loadCurrentSettings() {
+        controller.executeRetrieveSettings();
     }
 
     /**
      * Handles clicking the Save button.
-     * Uses EditSettingsUseCase to validate and save.
+     * Uses SettingsController to validate and save.
      */
     private void onSaveClicked() {
         int requested = timeSlider.getValue();
@@ -193,15 +232,6 @@ public class Settings extends JPanel {
             newDifficultyName = "medium";
         }
 
-        try {
-            editSettingsUseCase.editSettings(requested, newDifficultyName);
-            messageLabel.setForeground(new Color(0, 128, 0)); // dark green
-            messageLabel.setText("Settings updated successfully.");
-        } catch (IllegalArgumentException ex) {
-            messageLabel.setForeground(Color.RED);
-            messageLabel.setText(ex.getMessage());
-            // reload previous valid settings
-            loadCurrentSettings();
-        }
+        controller.executeEditSettings(requested, newDifficultyName);
     }
 }
