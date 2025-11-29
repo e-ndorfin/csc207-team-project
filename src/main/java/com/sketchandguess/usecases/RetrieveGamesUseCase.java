@@ -21,6 +21,6 @@ public class RetrieveGamesUseCase {
     }
 
     public GameRecord GetGame(int GameCode) {
-        return this.GameData.getGame(GameCode);
+        return this.GameData.GetGame(GameCode);
     }
 }

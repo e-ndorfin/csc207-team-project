@@ -24,7 +24,7 @@ public class ManualAPITest {
 
             byte[] imageData = Files.readAllBytes(imageFile.toPath());
             System.out.println("Sending request to Hugging Face API...");
-            String response = caller.call(imageData).join();
+            String response = caller.call(imageData);
             System.out.println("Response: " + response);
 
         } catch (Exception e) {
