@@ -1,15 +1,20 @@
 package com.sketchandguess.gui;
 
+import com.sketchandguess.interface_adapters.menu.MenuController;
+import com.sketchandguess.interface_adapters.menu.MenuViewModel;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class MainMenu extends JPanel {
-    private Application app;
+    private MenuController menuController;
+    private MenuViewModel menuViewModel;
     
-    public MainMenu(Application app) {
-        this.app = app;
+    public MainMenu(MenuController menuController, MenuViewModel menuViewModel) {
+        this.menuController = menuController;
+        this.menuViewModel = menuViewModel;
         
         setLayout(new BorderLayout());
         setBackground(Color.LIGHT_GRAY);
@@ -44,30 +49,32 @@ public class MainMenu extends JPanel {
         
         add(buttonPanel, BorderLayout.CENTER);
         
-        // Button actions
+        // Button actions - delegate to controller
         playButton.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {app.startNewGame();}
+            public void actionPerformed(ActionEvent e) {
+                menuController.executePlayGame();
+            }
         });
         
         galleryButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                app.showGallery();
+                menuController.executeShowGallery();
             }
         });
         
         settingsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                app.showSettings();
+                menuController.executeShowSettings();
             }
         });
         
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.exit(0);
+                menuController.executeExit();
             }
         });
     }
