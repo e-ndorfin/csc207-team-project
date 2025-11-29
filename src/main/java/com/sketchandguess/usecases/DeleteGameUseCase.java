@@ -1,6 +1,5 @@
 package com.sketchandguess.usecases;
 
-// import com.sketchandguess.database.GameDataBase;
 import com.sketchandguess.entities.GameRecord;
 
 public class DeleteGameUseCase implements DeleteGameInputBoundary {
@@ -11,7 +10,8 @@ public class DeleteGameUseCase implements DeleteGameInputBoundary {
 
     /**
      * @param gameRecord the game record which is supposed to be deleted
-     * @return null if the record is deleted successfully, error message if failed
+     * @return ture if the record is deleted successfully, false if failed to be deleted
+     * null if the record is deleted successfully, error message if failed
      */
     @Override
     public String delete (GameRecord gameRecord) {

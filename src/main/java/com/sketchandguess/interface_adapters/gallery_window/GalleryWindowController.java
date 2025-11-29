@@ -45,9 +45,10 @@ public class GalleryWindowController {
             presenter.prepareFailView("No record selected to delete.");
             return;
         }
-        boolean success = deleteGameUseCase.delete(record);
+        String error = deleteGameUseCase.delete(record);
+        boolean success = (error == null);
         if (!success) {
-            presenter.prepareFailView("Failed to delete record.");
+            presenter.prepareFailView(error);
         } else {
             state.setCurrentRecord(null);
             presenter.prepareSuccessView(null);

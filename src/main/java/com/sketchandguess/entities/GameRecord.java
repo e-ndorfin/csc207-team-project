@@ -103,4 +103,20 @@ public class GameRecord {
     public String getAiGuess() {
         return aiGuess;
     }
+
+    public boolean equals(Object object) {
+        if (this == object) return true;
+        if (object == null || getClass() != object.getClass()) return false;
+        GameRecord gameRecord = (GameRecord) object;
+        if (!imagePath.equals(gameRecord.imagePath)) return false;
+        if (!date.equals(gameRecord.date)) return false;
+        return prompt.equals(gameRecord.prompt);
+    }
+
+    public int hashCode() {
+        int result = imagePath.hashCode();
+        result = 31 * result + date.hashCode();
+        result = 31 * result + prompt.hashCode();
+        return result;
+    }
 }

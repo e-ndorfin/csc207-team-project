@@ -131,7 +131,7 @@ public class GameDataBase implements GameDataAccessInterface {
             throw new RuntimeException("Failed to delete game record from CSV", e);
         }
     }
-
+    /**
     public Boolean DeleteGame(GameRecord DeletedGame) {
         try {
             this.GameData.remove(DeletedGame);
@@ -140,7 +140,7 @@ public class GameDataBase implements GameDataAccessInterface {
             return Boolean.FALSE;
         }
 
-    }
+    } **/
 
     @Override
     public void save(GameRecord gameRecord) {

@@ -93,6 +93,11 @@ public class Application extends JFrame {
                         PictureWindow pictureWindow = new PictureWindow(galleryWindowViewModel, galleryWindowController);
                         pictureWindow.setVisible(true);
                     }
+                    else {
+                        gallery.refresh();
+                        gallery.revalidate();
+                        gallery.repaint();
+                    }
                 }
             }
         });
@@ -141,6 +146,7 @@ public class Application extends JFrame {
     }
 
     public void showGallery() {
+        gallery.refresh();
         setContentPane(gallery);
         revalidate();
         repaint();
