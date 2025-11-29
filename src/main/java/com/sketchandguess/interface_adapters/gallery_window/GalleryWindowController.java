@@ -1,9 +1,9 @@
 package com.sketchandguess.interface_adapters.gallery_window;
 
 import com.sketchandguess.entities.GameRecord;
-import com.sketchandguess.usecases.DeleteGameInputBoundary;
-import com.sketchandguess.usecases.SaveImageToUserInputBoundary;
-import com.sketchandguess.usecases.select_game.SelectGameRecordInputBoundary;
+import com.sketchandguess.usecases.deletegame.DeleteGameInputBoundary;
+import com.sketchandguess.usecases.saveimagetouser.SaveImageToUserInputBoundary;
+import com.sketchandguess.usecases.selectgame.SelectGameRecordInputBoundary;
 import com.sketchandguess.interface_adapters.ViewManagerModel;
 
 import java.io.IOException;

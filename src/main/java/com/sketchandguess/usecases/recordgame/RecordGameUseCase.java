@@ -1,4 +1,4 @@
-package com.sketchandguess.usecases.RecordGameUseCase;
+package com.sketchandguess.usecases.recordgame;
 
 import com.sketchandguess.usecases.GameDataAccessInterface;
 import com.sketchandguess.entities.GameRecord;
@@ -61,3 +61,4 @@ public class RecordGameUseCase implements RecordGameInputBoundary {
         presenter.present(outputData);
     }
 }
+

@@ -6,3 +6,4 @@ public interface UserSettingsDataAccessInterface {
     UserSettings getUserSettings();
     void saveUserSettings(UserSettings settings);
 }
+

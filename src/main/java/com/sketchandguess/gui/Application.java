@@ -14,11 +14,11 @@ import com.sketchandguess.interface_adapters.game.GameController;
 import com.sketchandguess.interface_adapters.game.GamePresenter;
 import com.sketchandguess.interface_adapters.game.GameResultViewModel;
 import com.sketchandguess.interface_adapters.game.GameViewModel;
-import com.sketchandguess.usecases.DeleteGameUseCase;
-import com.sketchandguess.usecases.RecordGameUseCase.RecordGameUseCase;
-import com.sketchandguess.usecases.SaveImageToUserUseCase;
+import com.sketchandguess.usecases.deletegame.DeleteGameUseCase;
+import com.sketchandguess.usecases.recordgame.RecordGameUseCase;
+import com.sketchandguess.usecases.saveimagetouser.SaveImageToUserUseCase;
 import com.sketchandguess.usecases.gameplay.GameplayUseCase;
-import com.sketchandguess.usecases.select_game.SelectGameRecordUseCase;
+import com.sketchandguess.usecases.selectgame.SelectGameRecordUseCase;
 
 import javax.swing.*;
 import java.awt.*;

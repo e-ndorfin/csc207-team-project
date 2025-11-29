@@ -1,4 +1,4 @@
-package com.sketchandguess.usecases.RecordGameUseCase;
+package com.sketchandguess.usecases.recordgame;
 
 /**
  * Output Boundary.
@@ -13,3 +13,4 @@ public interface RecordGameOutputBoundary {
      */
     void present(RecordGameOutputData outputData);
 }
+

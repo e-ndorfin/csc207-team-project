@@ -1,12 +1,9 @@
-package com.sketchandguess.usecases;
+package com.sketchandguess.usecases.retrievegames;
 
 import com.sketchandguess.database.GameDataBase;
 import com.sketchandguess.entities.GameRecord;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 public class RetrieveGamesUseCase {
     private final GameDataBase GameData;
@@ -21,6 +18,7 @@ public class RetrieveGamesUseCase {
     }
 
     public GameRecord GetGame(int GameCode) {
-        return this.GameData.GetGame(GameCode);
+        return this.GameData.getGame(GameCode);
     }
 }
+

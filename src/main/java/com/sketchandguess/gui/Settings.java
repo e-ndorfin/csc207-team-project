@@ -2,8 +2,8 @@ package com.sketchandguess.gui;
 
 import com.sketchandguess.database.UserSettingsDataBase;
 import com.sketchandguess.entities.UserSettings;
-import com.sketchandguess.usecases.EditSettingsUseCase;
-import com.sketchandguess.usecases.RetrieveSettingsUseCase;
+import com.sketchandguess.usecases.editsettings.EditSettingsUseCase;
+import com.sketchandguess.usecases.retrievesettings.RetrieveSettingsUseCase;
 
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
