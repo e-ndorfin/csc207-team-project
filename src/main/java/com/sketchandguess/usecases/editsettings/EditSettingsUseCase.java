@@ -1,4 +1,4 @@
-package com.sketchandguess.usecases;
+package com.sketchandguess.usecases.editsettings;
 
 import com.sketchandguess.database.UserSettingsDataBase;
 import com.sketchandguess.entities.UserSettings;
@@ -50,3 +50,4 @@ public class EditSettingsUseCase {
         userSettingsDataBase.saveUserSettings(settings);
     }
 }
+

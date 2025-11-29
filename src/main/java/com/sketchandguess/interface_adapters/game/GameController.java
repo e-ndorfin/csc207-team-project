@@ -11,8 +11,8 @@ import java.util.UUID;
 import javax.imageio.ImageIO;
 
 import com.sketchandguess.entities.Difficulty;
-import com.sketchandguess.usecases.RecordGameUseCase.RecordGameInputBoundary;
-import com.sketchandguess.usecases.RecordGameUseCase.RecordGameInputData;
+import com.sketchandguess.usecases.recordgame.RecordGameInputBoundary;
+import com.sketchandguess.usecases.recordgame.RecordGameInputData;
 import com.sketchandguess.usecases.gameplay.GameplayInputBoundary;
 import com.sketchandguess.usecases.gameplay.GameplayInputData;
 

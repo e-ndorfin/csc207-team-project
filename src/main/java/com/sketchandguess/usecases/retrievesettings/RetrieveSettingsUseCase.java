@@ -1,4 +1,4 @@
-package com.sketchandguess.usecases;
+package com.sketchandguess.usecases.retrievesettings;
 
 import com.sketchandguess.database.UserSettingsDataBase;
 import com.sketchandguess.entities.UserSettings;
@@ -26,3 +26,4 @@ public class RetrieveSettingsUseCase {
         return userSettingsDataBase.getUserSettings();
     }
 }
+

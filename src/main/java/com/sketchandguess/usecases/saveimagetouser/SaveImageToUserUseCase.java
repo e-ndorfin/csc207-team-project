@@ -1,4 +1,4 @@
-package com.sketchandguess.usecases;
+package com.sketchandguess.usecases.saveimagetouser;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
@@ -47,3 +47,4 @@ public class SaveImageToUserUseCase implements SaveImageToUserInputBoundary {
         }
     }
 }
+

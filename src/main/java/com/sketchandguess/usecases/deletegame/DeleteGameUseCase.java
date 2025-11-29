@@ -1,4 +1,4 @@
-package com.sketchandguess.usecases;
+package com.sketchandguess.usecases.deletegame;
 
 import com.sketchandguess.database.GameDataBase;
 import com.sketchandguess.entities.GameRecord;
@@ -18,3 +18,4 @@ public class DeleteGameUseCase implements DeleteGameInputBoundary {
         return gameDataBase.DeleteGame(gameRecord);
     }
 }
+
