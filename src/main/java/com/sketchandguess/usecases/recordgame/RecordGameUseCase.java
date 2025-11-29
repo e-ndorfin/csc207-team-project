@@ -1,9 +1,9 @@
 package com.sketchandguess.usecases.recordgame;
 
-import com.sketchandguess.usecases.GameDataAccessInterface;
-import com.sketchandguess.entities.GameRecord;
-
 import java.time.LocalDate;
+
+import com.sketchandguess.entities.GameRecord;
+import com.sketchandguess.usecases.GameDataAccessInterface;
 
 /**
  * The RecordGame use case.
@@ -23,7 +23,7 @@ public class RecordGameUseCase implements RecordGameInputBoundary {
 
     public RecordGameUseCase(GameDataAccessInterface gameDataAccessObject,
                              RecordGameOutputBoundary presenter) {
-        this.gameDataAccessObject = gameDataAccessObject;
+        this.gameDataAccessObject = gameDataAccessObject;  // this is the gameDataBase
         this.presenter = presenter;
     }
 
