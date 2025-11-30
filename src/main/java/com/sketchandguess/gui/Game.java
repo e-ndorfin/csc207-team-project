@@ -99,10 +99,12 @@ public class Game extends JPanel implements PropertyChangeListener {
         JPanel bottomright = new JPanel(new GridLayout(4, 1, 10, 10)); 
         JButton giveUpButton = new JButton("Give Up");
         JButton clearButton = new JButton("Clear");
+        JButton undoButton = new JButton("Undo");
         JButton penButton = new JButton("Pen");
         JButton eraserButton = new JButton("Eraser");
 
         bottomright.add(clearButton);
+        bottomright.add(undoButton);
         bottomright.add(giveUpButton);
         bottomright.add(eraserButton);
         bottomright.add(penButton);
@@ -119,6 +121,10 @@ public class Game extends JPanel implements PropertyChangeListener {
             canvas.clearCanvas();
             resetTool();
             hasStartedDrawing = false;
+        });
+
+        undoButton.addActionListener(e -> {
+            canvas.undoLastStroke();
         });
 
         penButton.addActionListener(e -> {
@@ -583,6 +589,16 @@ public class Game extends JPanel implements PropertyChangeListener {
             strokeColors.clear();
             strokeSizes.clear();
             repaint();
+        }
+
+        public void undoLastStroke() {
+            if (!strokes.isEmpty()) {
+                int last = strokes.size() - 1;
+                strokes.remove(last);
+                strokeColors.remove(last);
+                strokeSizes.remove(last);
+                repaint();
+            }
         }
 
         public BufferedImage exportImage() {
