@@ -26,6 +26,8 @@ import com.sketchandguess.usecases.recordgame.RecordGameUseCase;
 import com.sketchandguess.usecases.saveimagetouser.SaveImageToUserUseCase;
 import com.sketchandguess.usecases.gameplay.GameplayUseCase;
 import com.sketchandguess.usecases.selectgame.SelectGameRecordUseCase;
+import com.sketchandguess.usecases.selectgame.SelectGameRecordUseCase;
+import com.sketchandguess.usecases.GameDataAccessInterface;
 
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
@@ -130,6 +132,11 @@ public class Application extends JFrame {
                     
                     // Update the previous record
                     previousRecord[0] = currentRecord;
+                } else if (evt.getPropertyName().equals("deleted")) {
+                    // Refresh the gallery when a game is deleted
+                    gallery.refresh();
+                    gallery.revalidate();
+                    gallery.repaint();
                 }
             }
         });
@@ -168,6 +175,7 @@ public class Application extends JFrame {
         });
 
         // Starting point is main menu
+        viewManagerModel.setState(MenuViewModel.VIEW_NAME);
         showMainmenu();
 
         setVisible(true);
@@ -218,6 +226,8 @@ public class Application extends JFrame {
     }
 
     public void showMainmenu() {
+        // Update the view manager state so that transitions know we're coming from MainMenu
+        viewManagerModel.setState("MainMenu");
         setContentPane(mainMenu);
         revalidate();
         repaint();

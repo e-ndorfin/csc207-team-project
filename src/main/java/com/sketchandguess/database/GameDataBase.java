@@ -83,7 +83,7 @@ public class GameDataBase implements GameDataAccessInterface {
 
     private GameRecord ConvertToRecord(ArrayList<String> data) {
         String aiGuess = "N/A";
-        if (data.size() > 7) {
+        if (data.size() > 7) {  // Check if aiGuess exists in the .csv file - if not just default to N/A
             aiGuess = data.get(7);
         }
         
@@ -132,6 +132,10 @@ public class GameDataBase implements GameDataAccessInterface {
         }
     }
 
+    /**
+     * Legacy method for deleting games (does not save to CSV).
+     * Consider using deleteGame() instead which properly updates the CSV file.
+     */
     public Boolean DeleteGame(GameRecord DeletedGame) {
         try {
             // ArrayList.remove() returns true if the element was found and removed, false otherwise
@@ -140,7 +144,6 @@ public class GameDataBase implements GameDataAccessInterface {
         } catch (Exception e) {
             return Boolean.FALSE;
         }
-
     }
 
     @Override

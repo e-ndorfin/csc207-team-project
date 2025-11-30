@@ -138,7 +138,7 @@ public class Game extends JPanel implements PropertyChangeListener {
     private void finishGame(boolean forceWin) {
         // Guard: prevent duplicate execution
         if (hasFinishedGame) {
-            // System.out.println("[DEBUG] finishGame: Game has already finished, ignoring duplicate call");
+            System.out.println("[DEBUG] finishGame: Game has already finished, ignoring duplicate call");
             return;
         }
         
@@ -194,15 +194,15 @@ public class Game extends JPanel implements PropertyChangeListener {
 
     @Override
     public void propertyChange(PropertyChangeEvent evt) {
-        // System.out.println("[DEBUG] Game.propertyChange: Property = " + evt.getPropertyName());
+        System.out.println("[DEBUG] Game.propertyChange: Property = " + evt.getPropertyName());
         if ("state".equals(evt.getPropertyName())) {
             GameState state = (GameState) evt.getNewValue();
             if (state == null) {
-                // System.out.println("[DEBUG] Game.propertyChange: State is null!");
+                System.out.println("[DEBUG] Game.propertyChange: State is null!");
                 return;
             }
             
-            // System.out.println("[DEBUG] Game.propertyChange: State hasWon = " + state.isHasWon());
+            System.out.println("[DEBUG] Game.propertyChange: State hasWon = " + state.isHasWon());
             
             // Update predictions with progress bars
             List<Prediction> preds = state.getPredictions();
@@ -250,23 +250,23 @@ public class Game extends JPanel implements PropertyChangeListener {
                 }
                 predictionsPanel.revalidate();
                 predictionsPanel.repaint();
-                // System.out.println("[DEBUG] Updated predictions panel with " + preds.size() + " predictions");
+                System.out.println("[DEBUG] Updated predictions panel with " + preds.size() + " predictions");
             } else {
                 predictionsPanel.removeAll();
                 predictionsPanel.revalidate();
                 predictionsPanel.repaint();
-                // System.out.println("[DEBUG] Predictions list is null or empty.");
+                System.out.println("[DEBUG] Predictions list is null or empty.");
             }
 
             // Check win - add delay before finishing game
             if (state.isHasWon()) {
                 // Guard: prevent duplicate win processing
                 if (isGameFinishing) {
-                    // System.out.println("[DEBUG] Game.propertyChange: Already finishing game, ignoring duplicate win event");
+                    System.out.println("[DEBUG] Game.propertyChange: Already finishing game, ignoring duplicate win event");
                     return;
                 }
                 
-                // System.out.println("[DEBUG] Game.propertyChange: hasWon is true, waiting 2.5 seconds before finishing game");
+                System.out.println("[DEBUG] Game.propertyChange: hasWon is true, waiting 2.5 seconds before finishing game");
                 
                 // Set flag and stop countdown immediately to prevent additional API checks
                 isGameFinishing = true;
@@ -274,13 +274,13 @@ public class Game extends JPanel implements PropertyChangeListener {
                 
                 // Wait 2.5 seconds before finishing the game to show the green highlight
                 javax.swing.Timer delayTimer = new javax.swing.Timer(2500, e -> {
-                    // System.out.println("[DEBUG] Delay complete, calling finishGame(true)");
+                    System.out.println("[DEBUG] Delay complete, calling finishGame(true)");
                     finishGame(true);
                 });
                 delayTimer.setRepeats(false);
                 delayTimer.start();
             } else {
-                // System.out.println("[DEBUG] Game.propertyChange: hasWon is false, not finishing game");
+                System.out.println("[DEBUG] Game.propertyChange: hasWon is false, not finishing game");
             }
         }
     }
@@ -348,17 +348,17 @@ public class Game extends JPanel implements PropertyChangeListener {
          countdownTimer = new Timer(1000, e -> {
             // Stop decrementing if game is finishing
             if (isGameFinishing) {
-                // System.out.println("[DEBUG] Timer tick skipped - game is finishing");
+                System.out.println("[DEBUG] Timer tick skipped - game is finishing");
                 return;
             }
             
-            // System.out.println("[DEBUG] Timer tick. Time left: " + timeLeftSeconds);
+            System.out.println("[DEBUG] Timer tick. Time left: " + timeLeftSeconds);
             timeLeftSeconds -= 1.0;
             
             // API Check every 3 seconds (when timeLeftSeconds % 3 == 0)
             // Skip API check if game is already finishing to prevent duplicate calls
-            if (hasStartedDrawing && timeLeftSeconds > 0 && timeLeftSeconds % 3 == 0 && !isGameFinishing) {
-                // System.out.println("[DEBUG] Checking API...");
+            if (hasStartedDrawing && timeLeftSeconds > 0 && (int)Math.round(timeLeftSeconds) % 3 == 0 && !isGameFinishing) {
+                System.out.println("[DEBUG] Checking API...");
                 String currentPrompt = promptLabel.getText().replace("Prompt: ", "").trim();
                 
                 // Save drawing for debugging
@@ -371,18 +371,18 @@ public class Game extends JPanel implements PropertyChangeListener {
                 File outputFile = new File(debugDir, fileName);
                 try {
                     ImageIO.write(debugImage, "PNG", outputFile);
-                    // System.out.println("[DEBUG] Saved drawing to: " + outputFile.getAbsolutePath());
+                    System.out.println("[DEBUG] Saved drawing to: " + outputFile.getAbsolutePath());
                 } catch (IOException ex) {
-                    // System.err.println("[DEBUG] Error saving debug image: " + ex.getMessage());
+                    System.err.println("[DEBUG] Error saving debug image: " + ex.getMessage());
                 }
                 
                 controller.checkPrediction(canvas.exportImage(), currentPrompt);
             } else {
-                 // System.out.println("[DEBUG] Skipping API check...");
+                 System.out.println("[DEBUG] Skipping API check...");
             }
 
             if (timeLeftSeconds <= 0) {
-                // System.out.println("[DEBUG] Time over.");
+                System.out.println("[DEBUG] Time over.");
                 timeLeftSeconds = 0;
                 updateTimerLabel();
                 countdownTimer.stop();
@@ -406,7 +406,7 @@ public class Game extends JPanel implements PropertyChangeListener {
     }
 
     public void setTimeLimitSeconds(double seconds) {
-        // System.out.println("[DEBUG] setTimeLimitSeconds called with: " + seconds);
+        System.out.println("[DEBUG] setTimeLimitSeconds called with: " + seconds);
         this.timeLimitSeconds = seconds;
         this.timeLeftSeconds = seconds;
         updateTimerLabel();
@@ -435,6 +435,7 @@ public class Game extends JPanel implements PropertyChangeListener {
         hasStartedDrawing = false;
         isGameFinishing = false; // Reset flag for new game session
         hasFinishedGame = false; // Reset flag for new game session
+        resetViewModelState(); // Reset the GameState in ViewModel to clear previous game data
     }
 
     public void resetForNewGame(){
@@ -444,6 +445,16 @@ public class Game extends JPanel implements PropertyChangeListener {
         hasStartedDrawing = false;
         isGameFinishing = false; // Reset flag for new game
         hasFinishedGame = false; // Reset flag for new game
+        resetViewModelState(); // Reset the GameState in ViewModel to clear previous game data
+    }
+
+    /**
+     * Resets the GameState in the ViewModel to initial values.
+     * This ensures hasWon, predictions, and other state from previous games don't carry over.
+     */
+    private void resetViewModelState() {
+        GameState freshState = new GameState();
+        viewModel.setState(freshState);
     }
 
     public void resetForRetry(){
@@ -458,6 +469,7 @@ public class Game extends JPanel implements PropertyChangeListener {
         hasStartedDrawing = false;
         isGameFinishing = false; // Reset flag for retry
         hasFinishedGame = false; // Reset flag for retry
+        resetViewModelState(); // Reset the GameState in ViewModel to clear previous game data
     }
 
     private class DrawingCanvas extends JPanel {
@@ -666,9 +678,9 @@ public class Game extends JPanel implements PropertyChangeListener {
                 String fileName = filenamePrefix + "_" + uuid + ".png";
                 File outputFile = new File(debugDir, fileName);
                 ImageIO.write(image, "png", outputFile);
-                // System.out.println("[DEBUG] Saved " + description + " to: " + outputFile.getAbsolutePath());
+                System.out.println("[DEBUG] Saved " + description + " to: " + outputFile.getAbsolutePath());
             } catch (Exception e) {
-                // System.err.println("[DEBUG] Error saving " + description + ": " + e.getMessage());
+                System.err.println("[DEBUG] Error saving " + description + ": " + e.getMessage());
             }
         }
         public void setBrushColor(Color color) {

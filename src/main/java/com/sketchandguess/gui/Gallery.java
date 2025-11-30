@@ -13,7 +13,9 @@ import java.util.Collections;
 public class Gallery extends JPanel {
     private final String viewName = "Drawing Gallery";
     private final String emptyGallery = "No Pictures Found";
+    // this database represents the "main" database of images we are drawing from; it will be the database shown by default
     public GameDataBase mainDataBase;
+    // this database represents the current database being shown. Usually, this is the MainDataBase, but it will change when the search bar is used.
     public GameDataBase currentDataBase;
 
     private final JTextField searchBarField = new JTextField(15);
@@ -123,7 +125,7 @@ public class Gallery extends JPanel {
 
                 // Add an action listener to handle clicks
                 imageButton.addActionListener(e -> {
-                    galleryWindowController.setRecord(record);
+                    galleryWindowController.selectGameRecord(record);
                 });
 
                 galleryGridPanel.add(imageButton);
