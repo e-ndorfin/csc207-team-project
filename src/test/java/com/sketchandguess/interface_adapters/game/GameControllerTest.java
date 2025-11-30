@@ -19,7 +19,8 @@ class GameControllerTest {
         MockGameplayInputBoundary gameplayInteractor = new MockGameplayInputBoundary();
         GameController controller = new GameController(recordInteractor, gameplayInteractor);
 
-        BufferedImage dummyImage = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage dummyFullSizeImage = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
+        BufferedImage dummyDownsampledImage = new BufferedImage(28, 28, BufferedImage.TYPE_INT_ARGB);
         String prompt = "Test Prompt";
         Difficulty difficulty = new Difficulty("Hard");
         double timeTaken = 30.0;
@@ -27,7 +28,7 @@ class GameControllerTest {
         boolean hasWon = true;
 
         // Act
-        controller.executeGameResult(dummyImage, prompt, difficulty, timeTaken, timeLimit, hasWon);
+        controller.executeGameResult(dummyFullSizeImage, dummyDownsampledImage, prompt, difficulty, timeTaken, timeLimit, hasWon);
 
         // Assert
         assertNotNull(recordInteractor.capturedInputData);
@@ -36,7 +37,10 @@ class GameControllerTest {
         assertEquals(timeTaken, recordInteractor.capturedInputData.timeTaken);
         assertEquals(timeLimit, recordInteractor.capturedInputData.timeLimit);
         assertEquals(hasWon, recordInteractor.capturedInputData.hasWon);
-        assertNotNull(recordInteractor.capturedInputData.imagePath);
+        assertNotNull(recordInteractor.capturedInputData.fullSizeImage);
+        assertNotNull(recordInteractor.capturedInputData.downsampledImage);
+        assertEquals(dummyFullSizeImage, recordInteractor.capturedInputData.fullSizeImage);
+        assertEquals(dummyDownsampledImage, recordInteractor.capturedInputData.downsampledImage);
     }
 
     static class MockRecordGameInputBoundary implements RecordGameInputBoundary {
