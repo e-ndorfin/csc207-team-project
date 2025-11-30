@@ -3,8 +3,8 @@ package com.sketchandguess.interface_adapters.game;
 import javax.swing.SwingUtilities;
 
 import com.sketchandguess.interface_adapters.ViewManagerModel;
-import com.sketchandguess.usecases.RecordGameUseCase.RecordGameOutputBoundary;
-import com.sketchandguess.usecases.RecordGameUseCase.RecordGameOutputData;
+import com.sketchandguess.usecases.recordgame.RecordGameOutputBoundary;
+import com.sketchandguess.usecases.recordgame.RecordGameOutputData;
 import com.sketchandguess.usecases.gameplay.GameplayOutputBoundary;
 import com.sketchandguess.usecases.gameplay.GameplayOutputData;
 

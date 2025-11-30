@@ -1,11 +1,12 @@
 package com.sketchandguess.interface_adapters.gallery_window;
 
 import com.sketchandguess.entities.GameRecord;
+import com.sketchandguess.usecases.deletegame.DeleteGameInputBoundary;
+import com.sketchandguess.usecases.saveimagetouser.SaveImageToUserInputBoundary;
+import com.sketchandguess.usecases.selectgame.SelectGameRecordInputBoundary;
 import com.sketchandguess.interface_adapters.ViewManagerModel;
-import com.sketchandguess.usecases.select_game.SelectGameRecordInputBoundary;
 
-import com.sketchandguess.usecases.DeleteGameInputBoundary;
-import com.sketchandguess.usecases.SaveImageToUserInputBoundary;
+>>>>>>> origin/zac/main-menu-refactor
 import java.io.IOException;
 
 public class GalleryWindowController {
@@ -15,6 +16,8 @@ public class GalleryWindowController {
     private final GalleryWindowPresenter presenter;
     private final DeleteGameInputBoundary deleteGameUseCase;
     private final SaveImageToUserInputBoundary saveImageUseCase;
+    private final SelectGameRecordInputBoundary selectGameRecordUseCase;
+    private final ViewManagerModel viewManagerModel;
 
     public GalleryWindowController(GalleryWindowState state,
                                    GalleryWindowPresenter presenter,
@@ -28,10 +31,6 @@ public class GalleryWindowController {
         this.saveImageUseCase = saveImageUseCase;
         this.selectGameRecordUseCase = selectGameRecordUseCase;
         this.viewManagerModel = viewManagerModel;
-    }
-
-    public void selectGameRecord(GameRecord record) {
-        selectGameRecordUseCase.execute(record);
     }
 
     public void setRecord(GameRecord record) {
@@ -74,5 +73,14 @@ public class GalleryWindowController {
         } catch (IOException e) {
             presenter.prepareFailView("Error while saving: " + e.getMessage());
         }
+    }
+
+    public void selectGameRecord(GameRecord record) {
+        selectGameRecordUseCase.execute(record);
+    }
+
+    public void goBackToMainMenu() {
+        viewManagerModel.setState("MainMenu");
+        viewManagerModel.firePropertyChange("view");
     }
 }

@@ -14,13 +14,19 @@ import com.sketchandguess.interface_adapters.game.GameController;
 import com.sketchandguess.interface_adapters.game.GamePresenter;
 import com.sketchandguess.interface_adapters.game.GameResultViewModel;
 import com.sketchandguess.interface_adapters.game.GameViewModel;
-import com.sketchandguess.usecases.DeleteGameInputBoundary;
-import com.sketchandguess.usecases.DeleteGameUseCase;
-import com.sketchandguess.usecases.RecordGameUseCase.RecordGameUseCase;
-import com.sketchandguess.usecases.SaveImageToUserInputBoundary;
-import com.sketchandguess.usecases.SaveImageToUserUseCase;
+import com.sketchandguess.interface_adapters.menu.MenuController;
+import com.sketchandguess.interface_adapters.menu.MenuViewModel;
+import com.sketchandguess.interface_adapters.settings.SettingsController;
+import com.sketchandguess.interface_adapters.settings.SettingsPresenter;
+import com.sketchandguess.interface_adapters.settings.SettingsViewModel;
+import com.sketchandguess.usecases.deletegame.DeleteGameUseCase;
+import com.sketchandguess.usecases.editsettings.EditSettingsUseCase;
+import com.sketchandguess.usecases.retrievesettings.RetrieveSettingsUseCase;
+import com.sketchandguess.usecases.recordgame.RecordGameUseCase;
+import com.sketchandguess.usecases.saveimagetouser.SaveImageToUserUseCase;
 import com.sketchandguess.usecases.gameplay.GameplayUseCase;
 import com.sketchandguess.usecases.select_game.SelectGameRecordUseCase;
+import com.sketchandguess.usecases.selectgame.SelectGameRecordUseCase;
 
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
@@ -54,23 +60,18 @@ public class Application extends JFrame {
         // Initialize GalleryWindow components
         galleryWindowViewModel = new GalleryWindowViewModel();
         GalleryWindowPresenter galleryWindowPresenter = new GalleryWindowPresenter(galleryWindowViewModel);
+        GalleryWindowState galleryWindowState = galleryWindowViewModel.getState();
+        DeleteGameUseCase deleteGameUseCase = new DeleteGameUseCase(gameDataBase);
+        SaveImageToUserUseCase saveImageToUserUseCase = new SaveImageToUserUseCase();
         SelectGameRecordUseCase selectGameRecordUseCase = new SelectGameRecordUseCase(galleryWindowPresenter);
-        GalleryWindowState galleryState = galleryWindowViewModel.getState();
-        if (galleryState == null) {
-            galleryState = new GalleryWindowState();
-            galleryWindowViewModel.setState(galleryState);
-        }
-
-        DeleteGameInputBoundary deleteGameUseCase = new DeleteGameUseCase(gameDataBase);
-        SaveImageToUserInputBoundary saveImageUseCase = new SaveImageToUserUseCase();
         galleryWindowController = new GalleryWindowController(
-                galleryState,
-                galleryWindowPresenter,
-                deleteGameUseCase,
-                saveImageUseCase,
-                selectGameRecordUseCase,
-                viewManagerModel
-        );
+            galleryWindowState,
+            galleryWindowPresenter,
+            deleteGameUseCase,
+            saveImageToUserUseCase,
+            selectGameRecordUseCase,
+            viewManagerModel
+        ); 
 
         // Initialize API components
         APIHandler apiHandler = new APIHandler("https://zachttang-quickdraw.hf.space/predict");
@@ -88,12 +89,24 @@ public class Application extends JFrame {
         
         GameController gameController = new GameController(recordGameUseCase, gameplayUseCase);
 
+        SettingsViewModel settingsViewModel = new SettingsViewModel();
+        SettingsPresenter settingsPresenter = new SettingsPresenter(settingsViewModel);
+        
+        EditSettingsUseCase editSettingsUseCase = new EditSettingsUseCase(userSettingsDataBase, settingsPresenter);
+        RetrieveSettingsUseCase retrieveSettingsUseCase = new RetrieveSettingsUseCase(userSettingsDataBase, settingsPresenter);
+        
+        SettingsController settingsController = new SettingsController(editSettingsUseCase, retrieveSettingsUseCase);
+
+        // Initialize Menu components
+        MenuViewModel menuViewModel = new MenuViewModel();
+        MenuController menuController = new MenuController(viewManagerModel);
+
         // Initialize views
-        mainMenu = new MainMenu(this);
+        mainMenu = new MainMenu(menuController, menuViewModel);
         game = new Game(gameController, gameViewModel);
         gameResult = new GameResult(this, gameResultViewModel);
         gallery = new Gallery(this, galleryWindowController); 
-        settings = new Settings(this, userSettingsDataBase);
+        settings = new Settings(this, settingsController, settingsViewModel);
 
         // Add PropertyChangeListener to GalleryWindowViewModel
         // Track the previous record to only open PictureWindow when a new record is selected
@@ -132,13 +145,19 @@ public class Application extends JFrame {
             @Override
             public void propertyChange(PropertyChangeEvent evt) {
                 if (evt.getPropertyName().equals("view")) {
+                    String previousView = (String) evt.getOldValue();
                     String activeView = (String) evt.getNewValue();
                     switch (activeView) {
                         case "MainMenu":
                             showMainmenu();
                             break;
                         case "Game":
-                            showGame();
+                            // If coming from MainMenu, start a new game. Otherwise just show game.
+                            if ("MainMenu".equals(previousView)) {
+                                startNewGame();
+                            } else {
+                                showGame();
+                            }
                             break;
                         case "Gallery":
                             showGallery();

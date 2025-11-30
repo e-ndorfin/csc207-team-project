@@ -1,7 +1,6 @@
 package com.sketchandguess.usecases;
 
 import com.sketchandguess.entities.GameRecord;
-import java.util.ArrayList;
 import java.util.List;
 
 public interface GameDataAccessInterface {
@@ -11,3 +10,4 @@ public interface GameDataAccessInterface {
     boolean deleteGame(GameRecord gameRecord);
     void save(GameRecord gameRecord);
 }
+
