@@ -1,6 +1,7 @@
 package com.sketchandguess.usecases.recordgame;
 
 import com.sketchandguess.entities.Difficulty;
+import java.awt.image.BufferedImage;
 
 /**
  * Data passed from Controller → Use Case.
@@ -13,7 +14,8 @@ public class RecordGameInputData {
     public final double timeTaken;
     public final double timeLimit;
     public final Difficulty difficulty;
-    public final String imagePath;
+    public final BufferedImage fullSizeImage;
+    public final BufferedImage downsampledImage;
     public final String aiGuess;
 
     public RecordGameInputData(boolean hasWon,
@@ -21,14 +23,16 @@ public class RecordGameInputData {
                                double timeTaken,
                                double timeLimit,
                                Difficulty difficulty,
-                               String imagePath,
+                               BufferedImage fullSizeImage,
+                               BufferedImage downsampledImage,
                                String aiGuess) {
         this.hasWon = hasWon;
         this.prompt = prompt;
         this.timeTaken = timeTaken;
         this.timeLimit = timeLimit;
         this.difficulty = difficulty;
-        this.imagePath = imagePath;
+        this.fullSizeImage = fullSizeImage;
+        this.downsampledImage = downsampledImage;
         this.aiGuess = aiGuess;
     }
 }

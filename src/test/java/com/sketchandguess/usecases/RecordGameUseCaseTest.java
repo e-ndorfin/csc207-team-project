@@ -3,7 +3,6 @@ package com.sketchandguess.usecases;
 import com.sketchandguess.database.InMemoryGameDataAccess;
 import com.sketchandguess.entities.Difficulty;
 import com.sketchandguess.entities.GameRecord;
-import com.sketchandguess.usecases.GameDataAccessInterface;
 import com.sketchandguess.usecases.recordgame.RecordGameInputBoundary;
 import com.sketchandguess.usecases.recordgame.RecordGameInputData;
 import com.sketchandguess.usecases.recordgame.RecordGameOutputBoundary;
@@ -11,6 +10,7 @@ import com.sketchandguess.usecases.recordgame.RecordGameOutputData;
 import com.sketchandguess.usecases.recordgame.RecordGameUseCase;
 import org.junit.jupiter.api.Test;
 
+import java.awt.image.BufferedImage;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -22,6 +22,7 @@ class RecordGameUseCaseTest {
         // Arrange
         InMemoryGameDataAccess dataAccess = new InMemoryGameDataAccess();
         Difficulty difficulty = new Difficulty("Medium");
+        BufferedImage dummyImage = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
         
         RecordGameInputData inputData = new RecordGameInputData(
                 true,
@@ -29,7 +30,8 @@ class RecordGameUseCaseTest {
                 45.5,
                 60.0,
                 difficulty,
-                "path/to/image.png",
+                dummyImage,
+                dummyImage, // Not used in this use case, but required
                 "sports car"
         );
 
@@ -48,7 +50,10 @@ class RecordGameUseCaseTest {
                 // Verify data was saved correctly
                 assertEquals(1, dataAccess.getGames().size(), "One game should be saved");
                 GameRecord savedRecord = dataAccess.getGames().get(0);
-                assertEquals("path/to/image.png", savedRecord.getImagePath(), "Image path should match");
+                assertNotNull(savedRecord.getImagePath(), "Image path should not be null");
+                assertTrue(savedRecord.getImagePath().startsWith("src/main/resources/images/"), "Image path should be in the correct directory");
+                assertTrue(savedRecord.getImagePath().endsWith(".png"), "Image path should end with .png");
+                assertEquals(outputData.imagePath, savedRecord.getImagePath(), "Output data and saved record should have same image path");
                 assertEquals("A fast red car", savedRecord.getPrompt(), "Saved prompt should match");
                 assertEquals(45.5, savedRecord.getTimeTaken(), 0.001, "Saved time taken should match");
                 assertTrue(Math.abs(LocalDate.now().toEpochDay() - savedRecord.getDate().toEpochDay()) <= 1, 
@@ -67,14 +72,16 @@ class RecordGameUseCaseTest {
         // Arrange
         InMemoryGameDataAccess dataAccess = new InMemoryGameDataAccess();
         Difficulty difficulty = new Difficulty("Medium");
-        
+        BufferedImage dummyImage = new BufferedImage(100, 100, BufferedImage.TYPE_INT_ARGB);
+
         RecordGameInputData inputData = new RecordGameInputData(
                 false,  // Lost the game
                 "A fast red car",
                 55.0,  // Took longer than time limit
                 60.0,
                 difficulty,
-                "path/to/image.png",
+                dummyImage,
+                dummyImage, // Not used in this use case, but required
                 "wrong guess"
         );
 
@@ -93,6 +100,7 @@ class RecordGameUseCaseTest {
                 GameRecord savedRecord = dataAccess.getGames().get(0);
                 assertEquals(false, savedRecord.getHasWon(), "Saved record should show loss");
                 assertEquals(55.0, savedRecord.getTimeTaken(), 0.001, "Saved time taken should match");
+                assertNotNull(savedRecord.getImagePath(), "Image path should not be null");
             }
         };
 

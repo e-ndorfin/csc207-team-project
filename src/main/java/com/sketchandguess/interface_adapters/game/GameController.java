@@ -44,9 +44,7 @@ public class GameController {
      * @param timeLimit  The total time limit.
      * @param hasWon     Whether the user won the game.
      */
-    public void executeGameResult(BufferedImage image, String prompt, Difficulty difficulty, double timeTaken, double timeLimit, boolean hasWon) {
-        String imagePath = saveImage(image);
-
+    public void executeGameResult(BufferedImage fullSizeImage, BufferedImage downsampledImage, String prompt, Difficulty difficulty, double timeTaken, double timeLimit, boolean hasWon) {
         // AI guess placeholder - this is now handled by gameplay loop, but we need it for record
         String aiGuess = hasWon ? prompt : "Incorrect"; // Simple placeholder for record
 
@@ -56,7 +54,8 @@ public class GameController {
                 timeTaken,
                 timeLimit,
                 difficulty,
-                imagePath,
+                fullSizeImage,
+                downsampledImage,
                 aiGuess
         );
 
@@ -64,19 +63,5 @@ public class GameController {
         recordGameInteractor.execute(inputData);
     }
 
-    private String saveImage(BufferedImage image) {
-        String directory = "src/main/resources/images/";
-        String fileName = UUID.randomUUID().toString() + ".png";
-        Path path = Paths.get(directory + fileName);
-
-        try {
-            Files.createDirectories(path.getParent());
-            File outputFile = path.toFile();
-            ImageIO.write(image, "png", outputFile);
-            return directory + fileName; 
-        } catch (IOException e) {
-            e.printStackTrace();
-            return "default_image.png"; 
-        }
-    }
+    
 }
