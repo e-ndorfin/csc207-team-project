@@ -1,4 +1,4 @@
-package com.sketchandguess.usecases.select_game;
+package com.sketchandguess.usecases.selectgame;
 
 import com.sketchandguess.entities.GameRecord;
 
@@ -19,3 +19,4 @@ public class SelectGameRecordUseCase implements SelectGameRecordInputBoundary {
         }
     }
 }
+

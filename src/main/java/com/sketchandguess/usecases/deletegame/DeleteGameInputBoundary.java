@@ -1,4 +1,4 @@
-package com.sketchandguess.usecases;
+package com.sketchandguess.usecases.deletegame;
 
 import com.sketchandguess.entities.GameRecord;
 
@@ -9,3 +9,4 @@ public interface DeleteGameInputBoundary {
      */
     boolean delete(GameRecord gameRecord);
 }
+

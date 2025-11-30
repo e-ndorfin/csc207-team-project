@@ -1,7 +1,7 @@
 package com.sketchandguess.interface_adapters.gallery_window;
 
 import com.sketchandguess.entities.GameRecord;
-import com.sketchandguess.usecases.select_game.SelectGameRecordOutputBoundary;
+import com.sketchandguess.usecases.selectgame.SelectGameRecordOutputBoundary;
 
 import java.time.format.DateTimeFormatter;
 

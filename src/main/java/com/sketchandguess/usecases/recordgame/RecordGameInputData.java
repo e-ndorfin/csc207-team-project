@@ -1,4 +1,4 @@
-package com.sketchandguess.usecases.RecordGameUseCase;
+package com.sketchandguess.usecases.recordgame;
 
 import com.sketchandguess.entities.Difficulty;
 

@@ -1,4 +1,4 @@
-package com.sketchandguess.usecases;
+package com.sketchandguess.usecases.saveimagetouser;
 
 import java.io.IOException;
 
@@ -9,3 +9,4 @@ public interface SaveImageToUserInputBoundary {
      */
     boolean save(String imagePath) throws IOException;
 }
+
