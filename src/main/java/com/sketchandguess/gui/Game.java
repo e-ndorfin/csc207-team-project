@@ -157,7 +157,8 @@ public class Game extends JPanel implements PropertyChangeListener {
         }
         
         stopCountdown();
-        BufferedImage image = canvas.exportImage();
+        BufferedImage fullSizeImage = canvas.exportFullSizeImage();
+        BufferedImage downsampledImage = canvas.exportDownsampledImage();
         double timeTaken = timeLimitSeconds - timeLeftSeconds;
         
         String diffStr = difficultyLabel.getText().replace("Difficulty: ", "").trim();
@@ -193,7 +194,7 @@ public class Game extends JPanel implements PropertyChangeListener {
         // I will assume I will update GameController next.
         // So I will pass 'forceWin' (or the actual status) to the controller.
         
-        controller.executeGameResult(image, currentPrompt, difficulty, timeTaken, timeLimitSeconds, forceWin);
+        controller.executeGameResult(fullSizeImage, downsampledImage, currentPrompt, difficulty, timeTaken, timeLimitSeconds, forceWin);
         
         resetTool();
     }
@@ -368,7 +369,7 @@ public class Game extends JPanel implements PropertyChangeListener {
                 String currentPrompt = promptLabel.getText().replace("Prompt: ", "").trim();
                 
                 // Save drawing for debugging
-                BufferedImage debugImage = canvas.exportImage();
+                BufferedImage debugImage = canvas.exportDownsampledImage();
                 File debugDir = new File("src/main/resources/debugging");
                 if (!debugDir.exists()) {
                     debugDir.mkdirs();
@@ -382,7 +383,7 @@ public class Game extends JPanel implements PropertyChangeListener {
                     // System.err.println("[DEBUG] Error saving debug image: " + ex.getMessage());
                 }
                 
-                controller.checkPrediction(canvas.exportImage(), currentPrompt);
+                controller.checkPrediction(canvas.exportDownsampledImage(), currentPrompt);
             } else {
                 // System.out.println("[DEBUG] Skipping API check...");
             }
@@ -601,8 +602,7 @@ public class Game extends JPanel implements PropertyChangeListener {
             }
         }
 
-        public BufferedImage exportImage() {
-            // First, render the canvas at its current size
+        public BufferedImage exportFullSizeImage() {
             BufferedImage fullSizeImage = new BufferedImage(
                     getWidth(),
                     getHeight(),
@@ -612,9 +612,16 @@ public class Game extends JPanel implements PropertyChangeListener {
             paintAll(g2);
             g2.dispose();
             
-            // Save BEFORE downsampling (full-size image)
+            // Save full-size image for debugging
             String uuid = UUID.randomUUID().toString();
-            saveImageToFile(fullSizeImage, "canvas_before_downsample", uuid, "Canvas BEFORE downsampling");
+            saveImageToFile(fullSizeImage, "canvas_full_size", uuid, "Canvas FULL SIZE (for saving)");
+
+            return fullSizeImage;
+        }
+
+        public BufferedImage exportDownsampledImage() {
+            // First, render the canvas at its current size
+            BufferedImage fullSizeImage = exportFullSizeImage();
             
             // Sample down to 28x28 using min pooling
             // Min pooling takes the minimum (darkest) value from each pool region
@@ -657,8 +664,9 @@ public class Game extends JPanel implements PropertyChangeListener {
                 }
             }
             
-            // Save AFTER downsampling (28x28 image)
-            saveImageToFile(resizedImage, "canvas_after_downsample", uuid, "Canvas AFTER downsampling");
+            // Save AFTER downsampling (28x28 image) for debugging
+            String uuid = UUID.randomUUID().toString();
+            saveImageToFile(resizedImage, "canvas_downsampled", uuid, "Canvas DOWNSAMPLED (for API)");
             
             return resizedImage;
         }

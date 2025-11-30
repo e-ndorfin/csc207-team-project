@@ -1,6 +1,14 @@
 package com.sketchandguess.usecases.recordgame;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDate;
+import java.util.UUID;
+import javax.imageio.ImageIO;
 
 import com.sketchandguess.entities.GameRecord;
 import com.sketchandguess.usecases.GameDataAccessInterface;
@@ -30,9 +38,12 @@ public class RecordGameUseCase implements RecordGameInputBoundary {
     @Override
     public void execute(RecordGameInputData inputData) {
 
+        // Save the full-size image and get its path
+        String imagePath = saveImage(inputData.fullSizeImage);
+
         // Build the GameRecord entity
         GameRecord record = new GameRecord(
-                inputData.imagePath,
+                imagePath,
                 LocalDate.now(),
                 inputData.hasWon,
                 inputData.timeTaken,
@@ -53,12 +64,28 @@ public class RecordGameUseCase implements RecordGameInputBoundary {
                 inputData.timeLimit,
                 record.getDateString(),
                 inputData.difficulty,
-                inputData.imagePath,
+                imagePath,
                 inputData.aiGuess
         );
 
         // Call presenter
         presenter.present(outputData);
+    }
+
+    private String saveImage(BufferedImage image) {
+        String directory = "src/main/resources/images/";
+        String fileName = UUID.randomUUID().toString() + ".png";
+        Path path = Paths.get(directory + fileName);
+
+        try {
+            Files.createDirectories(path.getParent());
+            File outputFile = path.toFile();
+            ImageIO.write(image, "png", outputFile);
+            return directory + fileName; 
+        } catch (IOException e) {
+            e.printStackTrace();
+            return "default_image.png"; 
+        }
     }
 }
 
