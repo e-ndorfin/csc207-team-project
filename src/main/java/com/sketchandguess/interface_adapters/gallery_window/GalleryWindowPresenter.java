@@ -16,6 +16,10 @@ public class GalleryWindowPresenter implements SelectGameRecordOutputBoundary {
 
     @Override
     public void prepareSuccessView(GameRecord record) {
+        if (record == null) {
+            presentRecord(null);
+            return;
+        }
         GalleryWindowState state = viewModel.getState();
         state.setCurrentRecord(record);
         state.setDateText(record.getDate() != null ? DATE_FORMATTER.format(record.getDate()) : "");  // date if not null, empty string if null
@@ -58,5 +62,17 @@ public class GalleryWindowPresenter implements SelectGameRecordOutputBoundary {
         } else {
             prepareSuccessView(record);
         }
+    }
+
+    public void presentDeletionSuccess() {
+        GalleryWindowState state = viewModel.getState();
+        state.setCurrentRecord(null);
+        state.setDateText("");
+        state.setPromptText("");
+        state.setOutcomeText("");
+        state.setErrorMessage("");
+        viewModel.setState(state);
+        viewModel.firePropertyChange();
+        viewModel.fireDeletionEvent();
     }
 }

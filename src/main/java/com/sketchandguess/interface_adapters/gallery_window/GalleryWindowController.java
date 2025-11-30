@@ -34,6 +34,11 @@ public class GalleryWindowController {
         selectGameRecordUseCase.execute(record);
     }
 
+    public void setRecord(GameRecord record) {
+        // Clear the record when window closes - this allows the same record to be reopened
+        presenter.presentRecord(record);
+    }
+
     public void goBackToMainMenu() {
         viewManagerModel.setState("MainMenu");
         viewManagerModel.firePropertyChange("view");
@@ -51,7 +56,7 @@ public class GalleryWindowController {
             presenter.prepareFailView(error);
         } else {
             state.setCurrentRecord(null);
-            presenter.prepareSuccessView(null);
+            presenter.presentDeletionSuccess();
         }
     }
 

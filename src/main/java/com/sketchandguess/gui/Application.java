@@ -118,6 +118,11 @@ public class Application extends JFrame {
                     
                     // Update the previous record
                     previousRecord[0] = currentRecord;
+                } else if (evt.getPropertyName().equals("deleted")) {
+                    // Refresh the gallery when a game is deleted
+                    gallery.refresh();
+                    gallery.revalidate();
+                    gallery.repaint();
                 }
             }
         });
