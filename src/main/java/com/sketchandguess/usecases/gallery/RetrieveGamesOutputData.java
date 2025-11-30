@@ -2,11 +2,11 @@ package com.sketchandguess.usecases.gallery;
 
 import com.sketchandguess.entities.GameRecord;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class RetrieveGamesOutputData {
-    public final ArrayList<GameRecord> gameRecords;
-    public RetrieveGamesOutputData(ArrayList<GameRecord> gameRecords) {
+    public final List<GameRecord> gameRecords;
+    public RetrieveGamesOutputData(List<GameRecord> gameRecords) {
         this.gameRecords = gameRecords;
     }
 }

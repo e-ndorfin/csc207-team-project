@@ -3,6 +3,10 @@ package com.sketchandguess.usecases.retrievegames;
 import com.sketchandguess.database.InMemoryGameDataAccess;
 import com.sketchandguess.entities.Difficulty;
 import com.sketchandguess.entities.GameRecord;
+import com.sketchandguess.usecases.gallery.RetrieveGamesInputData;
+import com.sketchandguess.usecases.gallery.RetrieveGamesOutputBoundary;
+import com.sketchandguess.usecases.gallery.RetrieveGamesOutputData;
+import com.sketchandguess.usecases.gallery.RetrieveGamesUseCase;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,11 +20,22 @@ class RetrieveGamesUseCaseTest {
     private InMemoryGameDataAccess dataAccess;
     private RetrieveGamesUseCase useCase;
     private Difficulty mediumDifficulty;
+    private TestPresenter presenter;
+
+    private static class TestPresenter implements RetrieveGamesOutputBoundary {
+        RetrieveGamesOutputData receivedData;
+
+        @Override
+        public void present(RetrieveGamesOutputData data) {
+            this.receivedData = data;
+        }
+    }
 
     @BeforeEach
     void setUp() {
         dataAccess = new InMemoryGameDataAccess();
-        useCase = new RetrieveGamesUseCase(dataAccess);
+        presenter = new TestPresenter();
+        useCase = new RetrieveGamesUseCase(dataAccess, presenter);
         mediumDifficulty = new Difficulty("Medium");
         
         // Add test data
@@ -65,7 +80,8 @@ class RetrieveGamesUseCaseTest {
     @Test
     void successGetGamesTest() {
         // Act
-        List<GameRecord> result = useCase.GetGames();
+        useCase.execute(new RetrieveGamesInputData());
+        List<GameRecord> result = presenter.receivedData.gameRecords;
         
         // Assert
         assertNotNull(result, "Should return a non-null list");
@@ -79,72 +95,15 @@ class RetrieveGamesUseCaseTest {
     }
 
     @Test
-    void successSearchGamesTest() {
-        // Act - search for games containing "car"
-        List<GameRecord> result = useCase.SearchGames("car");
-        
-        // Assert
-        assertNotNull(result, "Should return a non-null list");
-        assertEquals(1, result.size(), "Should return 1 matching game");
-        assertEquals("A fast red car", result.get(0).getPrompt(), "Should return the car game");
-    }
-
-    @Test
-    void successSearchGamesNoMatchesTest() {
-        // Act - search for something that doesn't exist
-        List<GameRecord> result = useCase.SearchGames("elephant");
-        
-        // Assert
-        assertNotNull(result, "Should return a non-null list");
-        assertEquals(0, result.size(), "Should return empty list for no matches");
-    }
-
-    @Test
-    void successSearchGamesEmptyQueryTest() {
-        // Act - search with empty string (should return all games)
-        List<GameRecord> result = useCase.SearchGames("");
-        
-        // Assert
-        assertNotNull(result, "Should return a non-null list");
-        assertEquals(3, result.size(), "Should return all games for empty query");
-    }
-
-    @Test
-    void successGetGameTest() {
-        // Act - get first game (index 0)
-        GameRecord result = useCase.GetGame(0);
-        
-        // Assert
-        assertNotNull(result, "Should return a valid game");
-        assertEquals("A fast red car", result.getPrompt(), "Should return first game");
-    }
-
-    @Test
-    void failureGetGameInvalidCodeTest() {
-        // Act - get game with invalid index
-        GameRecord result = useCase.GetGame(10); // Beyond array bounds
-        
-        // Assert
-        assertNull(result, "Should return null for invalid game code");
-    }
-
-    @Test
-    void failureGetGameNegativeCodeTest() {
-        // Act - get game with negative index
-        GameRecord result = useCase.GetGame(-1);
-        
-        // Assert
-        assertNull(result, "Should return null for negative game code");
-    }
-
-    @Test
     void emptyDatabaseGetGamesTest() {
         // Arrange - create new empty database
         InMemoryGameDataAccess emptyDataAccess = new InMemoryGameDataAccess();
-        RetrieveGamesUseCase emptyUseCase = new RetrieveGamesUseCase(emptyDataAccess);
+        TestPresenter emptyPresenter = new TestPresenter();
+        RetrieveGamesUseCase emptyUseCase = new RetrieveGamesUseCase(emptyDataAccess, emptyPresenter);
         
         // Act
-        List<GameRecord> result = emptyUseCase.GetGames();
+        emptyUseCase.execute(new RetrieveGamesInputData());
+        List<GameRecord> result = emptyPresenter.receivedData.gameRecords;
         
         // Assert
         assertNotNull(result, "Should return a non-null list");

@@ -2,12 +2,13 @@ package com.sketchandguess.interface_adapters.gallery;
 
 import com.sketchandguess.entities.GameRecord;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class GalleryState {
-    private List<GameRecord> gameRecords;
+    private List<GameRecord> gameRecords = new ArrayList<>();
     private String searchQuery = "";
-    private boolean isEmpty;
+    private boolean isEmpty = true;
 
 
     public List<GameRecord> getGameRecords() {

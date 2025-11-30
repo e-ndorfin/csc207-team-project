@@ -85,7 +85,7 @@ public class Gallery extends JPanel implements PropertyChangeListener {
         if (viewModel.getState().isEmpty()) {
             cl.show(centerPanel, "empty");
         } else {
-            var ReversedRecords = viewModel.getState().getGameRecords();
+            java.util.List<GameRecord> ReversedRecords = new java.util.ArrayList<>(viewModel.getState().getGameRecords());
             Collections.reverse(ReversedRecords);
 
             for (GameRecord record : ReversedRecords) {

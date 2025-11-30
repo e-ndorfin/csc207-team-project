@@ -2,12 +2,12 @@ package com.sketchandguess.usecases.gallery;
 
 import com.sketchandguess.entities.GameRecord;
 
-import java.util.ArrayList;
+import java.util.List;
 
 public class SearchGamesOutputData {
     public final String query;
-    public final ArrayList<GameRecord> searchedGames;
-    public SearchGamesOutputData(String query, ArrayList<GameRecord> searchedGames) {
+    public final List<GameRecord> searchedGames;
+    public SearchGamesOutputData(String query, List<GameRecord> searchedGames) {
         this.query = query;
         this.searchedGames = searchedGames;
     }

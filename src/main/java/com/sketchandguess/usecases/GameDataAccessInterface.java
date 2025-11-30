@@ -7,8 +7,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface GameDataAccessInterface {
-    ArrayList<GameRecord> getGames(GameDataBase gameDataBase);
-    ArrayList<GameRecord> searchGames(String query);
+    List<GameRecord> getGames();
+    GameRecord getGame(int gameCode);
+    List<GameRecord> searchGames(String query);
     boolean deleteGame(GameRecord gameRecord);
     void save(GameRecord gameRecord);
 }
