@@ -42,7 +42,6 @@ public class GameDataBase implements DataBase {
     public GameDataBase SearchWord(String Query) {
         ArrayList<GameRecord> Matches = new ArrayList<>();
         for (GameRecord g: this.GameData) {
-            // TODO come back to this once gamerecord is implemented
             if (g.getPrompt().contains(Query)) {
                 Matches.add(Matches.size(), g);
             }

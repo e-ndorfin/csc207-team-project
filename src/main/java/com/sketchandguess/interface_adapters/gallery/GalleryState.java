@@ -6,18 +6,9 @@ import java.util.List;
 
 public class GalleryState {
     private List<GameRecord> gameRecords;
-    private String searchQuery;
+    private String searchQuery = "";
     private boolean isEmpty;
 
-    public GalleryState(String searchQuery, List<GameRecord> gameRecords) {
-        this.searchQuery = searchQuery;
-        this.gameRecords = gameRecords;
-        if (gameRecords.isEmpty()) {
-            isEmpty = true;
-        } else {
-            isEmpty = false;
-        }
-    }
 
     public List<GameRecord> getGameRecords() {
         return gameRecords;

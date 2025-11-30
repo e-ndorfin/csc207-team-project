@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RetrieveGamesUseCase implements RetrieveGamesInputBoundary {
+
     private final GameDataAccessInterface dataAccessInterface;
     private final RetrieveGamesOutputBoundary presenter;
     public RetrieveGamesUseCase(GameDataAccessInterface dataAccessInterface, RetrieveGamesOutputBoundary presenter) {

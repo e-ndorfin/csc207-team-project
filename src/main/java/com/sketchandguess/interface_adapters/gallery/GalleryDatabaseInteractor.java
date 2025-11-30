@@ -13,9 +13,6 @@ public class GalleryDatabaseInteractor {
         this.db = new GameDataBase();
     }
 
-    public void SearchDB(SearchObject query) {
-        this.db = this.db.SearchWord(query);
-    }
 
     public boolean isEmpty() {
         return this.db.getGameData().isEmpty();
