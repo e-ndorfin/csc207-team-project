@@ -1,9 +1,9 @@
 package com.sketchandguess.interface_adapters.gallery;
 
 import com.sketchandguess.entities.GameRecord;
-import com.sketchandguess.gui.MainMenu;
 import com.sketchandguess.interface_adapters.ViewManagerModel;
-import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowViewModel;
+import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowController;
+import com.sketchandguess.interface_adapters.menu.MenuViewModel;
 import com.sketchandguess.usecases.gallery.RetrieveGamesInputBoundary;
 import com.sketchandguess.usecases.gallery.RetrieveGamesInputData;
 import com.sketchandguess.usecases.gallery.SearchGamesInputBoundary;
@@ -12,13 +12,19 @@ import com.sketchandguess.usecases.gallery.SearchGamesInputData;
 public class GalleryController {
     private final RetrieveGamesInputBoundary retrieveGamesInputBoundary;
     private final SearchGamesInputBoundary searchGamesInputBoundary;
-    private ViewManagerModel viewManagerModel;
+    private final ViewManagerModel viewManagerModel;
+    private final GalleryWindowController galleryWindowController;
 
-    public GalleryController(RetrieveGamesInputBoundary retrieveGamesInputBoundary, SearchGamesInputBoundary searchGamesInputBoundary, ViewManagerModel viewManagerModel) {
+    public GalleryController(RetrieveGamesInputBoundary retrieveGamesInputBoundary, 
+                             SearchGamesInputBoundary searchGamesInputBoundary, 
+                             ViewManagerModel viewManagerModel,
+                             GalleryWindowController galleryWindowController) {
         this.retrieveGamesInputBoundary = retrieveGamesInputBoundary;
         this.searchGamesInputBoundary = searchGamesInputBoundary;
         this.viewManagerModel = viewManagerModel;
+        this.galleryWindowController = galleryWindowController;
     }
+
     public void refreshGallery() {
         RetrieveGamesInputData data = new RetrieveGamesInputData();
         retrieveGamesInputBoundary.execute(data);
@@ -29,18 +35,17 @@ public class GalleryController {
         searchGamesInputBoundary.execute(data);
     }
 
-    public void clearSearch () {
+    public void clearSearch() {
         RetrieveGamesInputData data = new RetrieveGamesInputData();
         retrieveGamesInputBoundary.execute(data);
     }
 
-    public void selectGameRecord (GameRecord record) {
-        viewManagerModel.setState(GalleryWindowViewModel.VIEW_NAME); //TODO not sure how to do this one
-        viewManagerModel.firePropertyChange("state");
+    public void selectGameRecord(GameRecord record) {
+        galleryWindowController.setRecord(record);
     }
 
-    public void returnToMainMenu () {
+    public void returnToMainMenu() {
         viewManagerModel.setState(MenuViewModel.VIEW_NAME);
-        viewManagerModel.firePropertyChange("state");
+        viewManagerModel.firePropertyChange("view");
     }
 }

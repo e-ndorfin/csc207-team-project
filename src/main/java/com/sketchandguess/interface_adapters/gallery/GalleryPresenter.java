@@ -11,7 +11,7 @@ public class GalleryPresenter implements RetrieveGamesOutputBoundary, SearchGame
 
     @Override
     public void present(RetrieveGamesOutputData outputData) {
-        GalleryState state = GalleryViewModel.getState();
+        GalleryState state = viewModel.getState();
         state.setGameRecords(outputData.gameRecords);
         viewModel.setState(state);
         viewModel.firePropertyChange("state");
@@ -20,7 +20,7 @@ public class GalleryPresenter implements RetrieveGamesOutputBoundary, SearchGame
 
     @Override
     public void present(SearchGamesOutputData outputData) {
-        GalleryState state = GalleryViewModel.getState();
+        GalleryState state = viewModel.getState();
         state.setGameRecords(outputData.searchedGames);
         state.setSearchQuery(outputData.query);
         viewModel.setState(state);

@@ -1,15 +1,20 @@
 package com.sketchandguess.gui;
 
+import com.sketchandguess.interface_adapters.menu.MenuController;
+import com.sketchandguess.interface_adapters.menu.MenuViewModel;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class MainMenu extends JPanel {
-    private Application app;
-    
-    public MainMenu(Application app) {
-        this.app = app;
+    private final MenuController controller;
+    private final MenuViewModel viewModel;
+
+    public MainMenu(MenuController controller, MenuViewModel viewModel) {
+        this.controller = controller;
+        this.viewModel = viewModel;
         
         setLayout(new BorderLayout());
         setBackground(Color.LIGHT_GRAY);
@@ -47,27 +52,29 @@ public class MainMenu extends JPanel {
         // Button actions
         playButton.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {app.startNewGame();}
+            public void actionPerformed(ActionEvent e) {
+                controller.startNewGame();
+            }
         });
         
         galleryButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                app.showGallery();
+                controller.showGallery();
             }
         });
         
         settingsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                app.showSettings();
+                controller.showSettings();
             }
         });
         
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                System.exit(0);
+                controller.exitApplication();
             }
         });
     }

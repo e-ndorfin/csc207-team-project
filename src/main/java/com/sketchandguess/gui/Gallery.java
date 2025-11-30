@@ -1,12 +1,8 @@
 package com.sketchandguess.gui;
 
-import com.sketchandguess.database.GameDataBase;
-import com.sketchandguess.database.SearchObject;
 import com.sketchandguess.entities.GameRecord;
 import com.sketchandguess.interface_adapters.gallery.GalleryController;
-import com.sketchandguess.interface_adapters.gallery.GalleryDatabaseInteractor;
 import com.sketchandguess.interface_adapters.gallery.GalleryViewModel;
-import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowController;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,20 +16,12 @@ public class Gallery extends JPanel implements PropertyChangeListener {
     private final GalleryController controller;
     private final GalleryViewModel viewModel;
 
-    // this database represents the "main" database of images we are drawing from; it will be the database shown by default
-    // this database represents the current database being shown. Usually, this is the MainDataBase, but it will change when the search bar is used.
     private final JTextField searchBarField = new JTextField(15);
     private final JPanel galleryGridPanel;
     private final JPanel centerPanel = new JPanel(new CardLayout());
     private final JButton backButton = new JButton("Back to Main Menu");
-    private final GalleryWindowController galleryWindowController;
-    private final Application app;
 
-
-
-    public Gallery(Application app, GalleryWindowController windowController, GalleryController controller, GalleryViewModel viewModel) {
-        this.app = app;
-        this.galleryWindowController = windowController;
+    public Gallery(GalleryController controller, GalleryViewModel viewModel) {
         this.controller = controller;
         this.viewModel = viewModel;
         viewModel.addPropertyChangeListener(this);
@@ -117,11 +105,7 @@ public class Gallery extends JPanel implements PropertyChangeListener {
 
                 // Add an action listener to handle clicks
                 imageButton.addActionListener(e -> {
-                    galleryWindowController.setRecord(record);
                     controller.selectGameRecord(record);
-                    // TODO: Slot in GalleryWindow.java logic here.
-                    // For example: new GalleryWindow(record);
-                    System.out.println("Clicked image for prompt: " + record.getPrompt());
                 });
 
                 galleryGridPanel.add(imageButton);

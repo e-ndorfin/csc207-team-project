@@ -117,13 +117,13 @@ public class Application extends JFrame {
         GalleryPresenter galleryPresenter = new GalleryPresenter(galleryViewModel);
         RetrieveGamesUseCase retrieveGamesUseCase = new RetrieveGamesUseCase(gameDataBase, galleryPresenter);
         SearchGamesUseCase searchGamesUseCase = new SearchGamesUseCase(gameDataBase, galleryPresenter);
-        galleryController = new GalleryController(retrieveGamesUseCase, searchGamesUseCase, viewManagerModel);
+        galleryController = new GalleryController(retrieveGamesUseCase, searchGamesUseCase, viewManagerModel, galleryWindowController);
 
         // Initialize views
         mainMenu = new MainMenu(menuController, menuViewModel);
         game = new Game(gameController, gameViewModel);
         gameResult = new GameResult(this, gameResultViewModel);
-        gallery = new Gallery(this, galleryWindowController, galleryController, galleryViewModel);
+        gallery = new Gallery(galleryController, galleryViewModel);
         settings = new Settings(this, settingsController, settingsViewModel);
 
         // Add PropertyChangeListener to GalleryWindowViewModel
