@@ -226,6 +226,8 @@ public class Application extends JFrame {
     }
 
     public void showMainmenu() {
+        // Update the view manager state so that transitions know we're coming from MainMenu
+        viewManagerModel.setState("MainMenu");
         setContentPane(mainMenu);
         revalidate();
         repaint();

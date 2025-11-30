@@ -435,6 +435,7 @@ public class Game extends JPanel implements PropertyChangeListener {
         hasStartedDrawing = false;
         isGameFinishing = false; // Reset flag for new game session
         hasFinishedGame = false; // Reset flag for new game session
+        resetViewModelState(); // Reset the GameState in ViewModel to clear previous game data
     }
 
     public void resetForNewGame(){
@@ -444,6 +445,16 @@ public class Game extends JPanel implements PropertyChangeListener {
         hasStartedDrawing = false;
         isGameFinishing = false; // Reset flag for new game
         hasFinishedGame = false; // Reset flag for new game
+        resetViewModelState(); // Reset the GameState in ViewModel to clear previous game data
+    }
+
+    /**
+     * Resets the GameState in the ViewModel to initial values.
+     * This ensures hasWon, predictions, and other state from previous games don't carry over.
+     */
+    private void resetViewModelState() {
+        GameState freshState = new GameState();
+        viewModel.setState(freshState);
     }
 
     public void resetForRetry(){
@@ -458,6 +469,7 @@ public class Game extends JPanel implements PropertyChangeListener {
         hasStartedDrawing = false;
         isGameFinishing = false; // Reset flag for retry
         hasFinishedGame = false; // Reset flag for retry
+        resetViewModelState(); // Reset the GameState in ViewModel to clear previous game data
     }
 
     private class DrawingCanvas extends JPanel {
