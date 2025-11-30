@@ -24,7 +24,7 @@ public class GameDataBase implements DataBase {
             while (iterator.hasNext()) {
                 String line = iterator.next();
                 ArrayList<String> parts = new ArrayList<>(Arrays.asList(line.split(",")));
-                GameRecord currentGame = ConvertToRecord(parts); // TODO: implement this once gameRecord constructor is implemented
+                GameRecord currentGame = ConvertToRecord(parts);
                 GameData.add(currentGame);
             }
         }
@@ -37,10 +37,6 @@ public class GameDataBase implements DataBase {
     // overloaded version for search function
     public GameDataBase(ArrayList<GameRecord> GameData) {
         this.GameData = GameData;
-    }
-
-    public GameRecord GetGame(Integer GameCode) {
-        return GameData.get(GameCode);
     }
 
     public GameDataBase SearchWord(String Query) {
@@ -61,7 +57,8 @@ public class GameDataBase implements DataBase {
         Double.parseDouble(data.get(3)),
         Double.parseDouble(data.get(4)),
                         new Difficulty(data.get(5)),
-                                data.get(6)
+                                data.get(6),
+                data.get(7)
 
         );
     }
@@ -73,4 +70,8 @@ public class GameDataBase implements DataBase {
             return Boolean.FALSE;
         }
         }
+
+    public ArrayList<GameRecord> getGameData() {
+        return this.GameData;
     }
+}

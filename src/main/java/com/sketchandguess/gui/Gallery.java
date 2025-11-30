@@ -9,6 +9,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Collections;
 
 // TODO ensure this does not call usecase methods, if it does, use a controller
 public class Gallery extends JPanel {
@@ -67,7 +68,10 @@ public class Gallery extends JPanel {
         if (mainDataBase.isEmpty()) {
             cl.show(centerPanel, "empty");
         } else {
-            for (GameRecord record : mainDataBase.getGameData()) {
+            var ReversedRecords = mainDataBase.getGameData();
+            Collections.reverse(ReversedRecords);
+
+            for (GameRecord record : ReversedRecords) {
                 ImageIcon icon = new ImageIcon(record.getImagePath());
                 Image image = icon.getImage();
                 // Scale image to a thumbnail size
