@@ -64,7 +64,7 @@ public class Application extends JFrame {
 
         this.gameDataBase = new GameDataBase();
 
-        DeleteGameInputBoundary deleteGameUseCase = new DeleteGameUseCase(gameDataBase);
+        DeleteGameInputBoundary deleteGameUseCase = new DeleteGameUseCase(gameDataBase, galleryWindowPresenter);
         SaveImageToUserInputBoundary saveImageUseCase = new SaveImageToUserUseCase();
         galleryWindowController = new GalleryWindowController(
                 galleryState,
