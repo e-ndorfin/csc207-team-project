@@ -25,8 +25,9 @@ import com.sketchandguess.usecases.retrievesettings.RetrieveSettingsUseCase;
 import com.sketchandguess.usecases.recordgame.RecordGameUseCase;
 import com.sketchandguess.usecases.saveimagetouser.SaveImageToUserUseCase;
 import com.sketchandguess.usecases.gameplay.GameplayUseCase;
-import com.sketchandguess.usecases.select_game.SelectGameRecordUseCase;
 import com.sketchandguess.usecases.selectgame.SelectGameRecordUseCase;
+import com.sketchandguess.usecases.selectgame.SelectGameRecordUseCase;
+import com.sketchandguess.usecases.GameDataAccessInterface;
 
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
@@ -174,6 +175,7 @@ public class Application extends JFrame {
         });
 
         // Starting point is main menu
+        viewManagerModel.setState(MenuViewModel.VIEW_NAME);
         showMainmenu();
 
         setVisible(true);

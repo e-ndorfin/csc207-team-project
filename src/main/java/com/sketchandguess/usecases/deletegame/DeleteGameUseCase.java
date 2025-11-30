@@ -1,6 +1,7 @@
 package com.sketchandguess.usecases.deletegame;
 
 import com.sketchandguess.entities.GameRecord;
+import com.sketchandguess.usecases.GameDataAccessInterface;
 
 public class DeleteGameUseCase implements DeleteGameInputBoundary {
     private final GameDataAccessInterface gameDataAccess;

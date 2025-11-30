@@ -35,10 +35,10 @@ class DeleteGameUseCaseTest {
         DeleteGameUseCase useCase = new DeleteGameUseCase(dataAccess);
         
         // Act
-        boolean result = useCase.delete(testGame);
+        String result = useCase.delete(testGame);
         
         // Assert
-        assertTrue(result, "Deletion should succeed for existing game");
+        assertNull(result, "Deletion should succeed for existing game");
         assertEquals(0, dataAccess.getGames().size(), "Database should be empty after deletion");
     }
 
@@ -63,10 +63,10 @@ class DeleteGameUseCaseTest {
         DeleteGameUseCase useCase = new DeleteGameUseCase(dataAccess);
         
         // Act
-        boolean result = useCase.delete(nonExistentGame);
+        String result = useCase.delete(nonExistentGame);
         
         // Assert
-        assertFalse(result, "Deletion should fail for non-existent game");
+        assertNotNull(result, "Deletion should fail for non-existent game");
         assertEquals(0, dataAccess.getGames().size(), "Database should remain empty");
     }
 
@@ -77,7 +77,7 @@ class DeleteGameUseCaseTest {
         DeleteGameUseCase useCase = new DeleteGameUseCase(dataAccess);
         
         // Act & Assert
-        assertFalse(useCase.delete(null), "Deletion of null should return false");
+        assertNotNull(useCase.delete(null), "Deletion of null should return false");
         assertEquals(0, dataAccess.getGames().size(), "Database should remain empty");
     }
 }

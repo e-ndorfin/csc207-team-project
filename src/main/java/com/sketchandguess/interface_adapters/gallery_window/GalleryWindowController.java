@@ -5,13 +5,9 @@ import com.sketchandguess.usecases.deletegame.DeleteGameInputBoundary;
 import com.sketchandguess.usecases.saveimagetouser.SaveImageToUserInputBoundary;
 import com.sketchandguess.usecases.selectgame.SelectGameRecordInputBoundary;
 import com.sketchandguess.interface_adapters.ViewManagerModel;
-
->>>>>>> origin/zac/main-menu-refactor
 import java.io.IOException;
 
 public class GalleryWindowController {
-    private final SelectGameRecordInputBoundary selectGameRecordUseCase;
-    private final ViewManagerModel viewManagerModel;
     private final GalleryWindowState state;
     private final GalleryWindowPresenter presenter;
     private final DeleteGameInputBoundary deleteGameUseCase;
@@ -77,10 +73,5 @@ public class GalleryWindowController {
 
     public void selectGameRecord(GameRecord record) {
         selectGameRecordUseCase.execute(record);
-    }
-
-    public void goBackToMainMenu() {
-        viewManagerModel.setState("MainMenu");
-        viewManagerModel.firePropertyChange("view");
     }
 }

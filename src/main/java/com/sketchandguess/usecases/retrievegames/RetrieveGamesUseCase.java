@@ -16,8 +16,7 @@ public class RetrieveGamesUseCase {
     public ArrayList<GameRecord> SearchGames(String search) {
         return GameData.SearchWord(search).GameData;
     }
-    /**
-    public GameRecord GetGame(int GameCode) {
-        return this.GameData.getGame(GameCode);
+    public GameRecord GetGame(int idx) {
+        return GameData.getGame(idx);
     }
 }
