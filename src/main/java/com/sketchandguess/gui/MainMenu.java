@@ -9,12 +9,12 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class MainMenu extends JPanel {
-    private MenuController menuController;
-    private MenuViewModel menuViewModel;
-    
-    public MainMenu(MenuController menuController, MenuViewModel menuViewModel) {
-        this.menuController = menuController;
-        this.menuViewModel = menuViewModel;
+    private final MenuController controller;
+    private final MenuViewModel viewModel;
+
+    public MainMenu(MenuController controller, MenuViewModel viewModel) {
+        this.controller = controller;
+        this.viewModel = viewModel;
         
         setLayout(new BorderLayout());
         setBackground(Color.LIGHT_GRAY);
@@ -49,32 +49,32 @@ public class MainMenu extends JPanel {
         
         add(buttonPanel, BorderLayout.CENTER);
         
-        // Button actions - delegate to controller
+        // Button actions
         playButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                menuController.executePlayGame();
+                controller.executePlayGame();
             }
         });
         
         galleryButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                menuController.executeShowGallery();
+                controller.executeShowGallery();
             }
         });
         
         settingsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                menuController.executeShowSettings();
+                controller.executeShowSettings();
             }
         });
         
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                menuController.executeExit();
+                controller.executeExit();
             }
         });
     }

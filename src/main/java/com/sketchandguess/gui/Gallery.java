@@ -1,63 +1,50 @@
 package com.sketchandguess.gui;
 
-import com.sketchandguess.database.GameDataBase;
 import com.sketchandguess.entities.GameRecord;
-import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowController;
+import com.sketchandguess.interface_adapters.gallery.GalleryController;
+import com.sketchandguess.interface_adapters.gallery.GalleryViewModel;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.util.Collections;
 
-public class Gallery extends JPanel {
-    private final String viewName = "Drawing Gallery";
-    private final String emptyGallery = "No Pictures Found";
-    // this database represents the "main" database of images we are drawing from; it will be the database shown by default
-    public GameDataBase mainDataBase;
-    // this database represents the current database being shown. Usually, this is the MainDataBase, but it will change when the search bar is used.
-    public GameDataBase currentDataBase;
+public class Gallery extends JPanel implements PropertyChangeListener {
+    private final GalleryController controller;
+    private final GalleryViewModel viewModel;
 
     private final JTextField searchBarField = new JTextField(15);
-    private final JPanel searchBar = new JPanel();
-    private final JButton searchButton = new JButton("Search");
-    private final JButton clearButton = new JButton("Clear");
-    private final JButton backButton = new JButton("Back to Main Menu");
     private final JPanel galleryGridPanel;
-    private final JScrollPane galleryScrollPane;
     private final JPanel centerPanel = new JPanel(new CardLayout());
-    private final JLabel emptyLabel = new JLabel(emptyGallery, SwingConstants.CENTER);
+    private final JButton backButton = new JButton("Back to Main Menu");
 
-    private final GalleryWindowController galleryWindowController;
-    private final Application app;
-
-
-    public Gallery(Application app, GalleryWindowController galleryWindowController) {
-        this.app = app;
-        this.galleryWindowController = galleryWindowController;
+    public Gallery(GalleryController controller, GalleryViewModel viewModel) {
+        this.controller = controller;
+        this.viewModel = viewModel;
+        viewModel.addPropertyChangeListener(this);
         this.setLayout(new BorderLayout());
-        this.mainDataBase = new GameDataBase();
-        this.currentDataBase = mainDataBase;
+        JPanel searchBar = new JPanel();
+        searchBar.add(searchBarField);
+        JButton searchButton = new JButton("Search");
+        searchBar.add(searchButton);
+        JButton clearButton = new JButton("Clear");
+        searchBar.add(clearButton);
+
 
         JPanel topControlsPanel = new JPanel(new BorderLayout()); // Panel to hold back button and search bar
-
-        JPanel searchPanel = new JPanel(); // Original search bar panel
-        searchPanel.add(searchBarField);
-        searchPanel.add(searchButton);
-        searchPanel.add(clearButton);
-
-        topControlsPanel.add(backButton, BorderLayout.WEST); // Add back button to the left
-        topControlsPanel.add(searchPanel, BorderLayout.CENTER); // Add search bar to the center
-
-        add(topControlsPanel, BorderLayout.NORTH); // Add the combined top panel to the frame
+        topControlsPanel.add(searchBar, BorderLayout.CENTER);
+        topControlsPanel.add(backButton, BorderLayout.WEST);
+        add(topControlsPanel, BorderLayout.NORTH);
 
         galleryGridPanel = new JPanel(new GridLayout(0, 3, 10, 10));
-        galleryScrollPane = new JScrollPane(galleryGridPanel);
-        
-        // Configure scroll speed for faster scrolling
-        galleryScrollPane.getVerticalScrollBar().setUnitIncrement(16); // increase for faster scrolling
-        
+        JScrollPane galleryScrollPane = new JScrollPane(galleryGridPanel);
+
         centerPanel.add(galleryScrollPane, "gallery");
+        String emptyGallery = "No Pictures Found";
+        JLabel emptyLabel = new JLabel(emptyGallery, SwingConstants.CENTER);
         centerPanel.add(emptyLabel, "empty");
         add(centerPanel, BorderLayout.CENTER);
 
@@ -66,7 +53,7 @@ public class Gallery extends JPanel {
         searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                currentDataBase = mainDataBase.SearchWord(searchBarField.getText());
+                controller.searchGames(searchBarField.getText());
                 updateGalleryView();
             }
                                        });
@@ -74,41 +61,35 @@ public class Gallery extends JPanel {
         clearButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                currentDataBase = mainDataBase;
+                controller.clearSearch();
+                searchBarField.setText("");
                 updateGalleryView();
             }
         });
 
-        backButton.addActionListener(e -> {
-            app.showMainmenu();
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                controller.returnToMainMenu();
+            }
         });
     }
-    
-    /**
-     * Refreshes the gallery by reloading the database from the CSV file
-     * and updating the view - called in `Application.java` when gallery is opened.
-     */
     public void refresh() {
-        // Reload the database from CSV
-        this.mainDataBase = new GameDataBase();
-        // Reset currentDataBase to mainDataBase (in case we were in a search)
-        this.currentDataBase = mainDataBase;
-        // Update the view with the fresh data
+        controller.refreshGallery();
         updateGalleryView();
     }
-    
+
     private void updateGalleryView() {
         galleryGridPanel.removeAll();
         CardLayout cl = (CardLayout)(centerPanel.getLayout());
 
-        if (currentDataBase.GameData.isEmpty()) {
+        if (viewModel.getState().isEmpty()) {
             cl.show(centerPanel, "empty");
         } else {
-            // Reverse the list to show newest (bottom of CSV) at the top
-            var reversedRecords = new java.util.ArrayList<>(currentDataBase.GameData);
-            Collections.reverse(reversedRecords);
-            
-            for (GameRecord record : reversedRecords) {
+            java.util.List<GameRecord> ReversedRecords = new java.util.ArrayList<>(viewModel.getState().getGameRecords());
+            Collections.reverse(ReversedRecords);
+
+            for (GameRecord record : ReversedRecords) {
                 ImageIcon icon = new ImageIcon(record.getImagePath());
                 Image image = icon.getImage();
                 // Scale image to a thumbnail size
@@ -125,7 +106,7 @@ public class Gallery extends JPanel {
 
                 // Add an action listener to handle clicks
                 imageButton.addActionListener(e -> {
-                    galleryWindowController.selectGameRecord(record);
+                    controller.selectGameRecord(record);
                 });
 
                 galleryGridPanel.add(imageButton);
@@ -135,5 +116,9 @@ public class Gallery extends JPanel {
 
         revalidate();
         repaint();
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+        updateGalleryView();
     }
 }

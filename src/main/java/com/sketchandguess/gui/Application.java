@@ -6,6 +6,10 @@ import com.sketchandguess.database.GameDataBase;
 import com.sketchandguess.database.UserSettingsDataBase;
 import com.sketchandguess.entities.GameRecord;
 import com.sketchandguess.interface_adapters.ViewManagerModel;
+import com.sketchandguess.interface_adapters.gallery.GalleryController;
+import com.sketchandguess.interface_adapters.gallery.GalleryPresenter;
+import com.sketchandguess.interface_adapters.gallery.GalleryState;
+import com.sketchandguess.interface_adapters.gallery.GalleryViewModel;
 import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowController;
 import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowPresenter;
 import com.sketchandguess.interface_adapters.gallery_window.GalleryWindowState;
@@ -19,8 +23,13 @@ import com.sketchandguess.interface_adapters.menu.MenuViewModel;
 import com.sketchandguess.interface_adapters.settings.SettingsController;
 import com.sketchandguess.interface_adapters.settings.SettingsPresenter;
 import com.sketchandguess.interface_adapters.settings.SettingsViewModel;
+import com.sketchandguess.usecases.GameDataAccessInterface;
 import com.sketchandguess.usecases.deletegame.DeleteGameUseCase;
 import com.sketchandguess.usecases.editsettings.EditSettingsUseCase;
+import com.sketchandguess.usecases.gallery.RetrieveGamesInputBoundary;
+import com.sketchandguess.usecases.gallery.RetrieveGamesInputData;
+import com.sketchandguess.usecases.gallery.RetrieveGamesUseCase;
+import com.sketchandguess.usecases.gallery.SearchGamesUseCase;
 import com.sketchandguess.usecases.retrievesettings.RetrieveSettingsUseCase;
 import com.sketchandguess.usecases.recordgame.RecordGameUseCase;
 import com.sketchandguess.usecases.saveimagetouser.SaveImageToUserUseCase;
@@ -32,6 +41,7 @@ import com.sketchandguess.usecases.GameDataAccessInterface;
 import javax.swing.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import java.util.List;
 
 public class Application extends JFrame {
     private MainMenu mainMenu;
@@ -41,6 +51,8 @@ public class Application extends JFrame {
     private final GalleryWindowViewModel galleryWindowViewModel;
     private final GalleryWindowController galleryWindowController;
     private final ViewManagerModel viewManagerModel;
+    private final GalleryController galleryController;
+    private final GalleryViewModel galleryViewModel;
     private GameResult gameResult;
     private UserSettingsDataBase userSettingsDataBase;
     private GameDataBase gameDataBase;
@@ -102,11 +114,18 @@ public class Application extends JFrame {
         MenuViewModel menuViewModel = new MenuViewModel();
         MenuController menuController = new MenuController(viewManagerModel);
 
+        // Initialize Gallery Components
+        galleryViewModel = new GalleryViewModel();
+        GalleryPresenter galleryPresenter = new GalleryPresenter(galleryViewModel);
+        RetrieveGamesUseCase retrieveGamesUseCase = new RetrieveGamesUseCase(gameDataBase, galleryPresenter);
+        SearchGamesUseCase searchGamesUseCase = new SearchGamesUseCase(gameDataBase, galleryPresenter);
+        galleryController = new GalleryController(retrieveGamesUseCase, searchGamesUseCase, viewManagerModel, galleryWindowController);
+
         // Initialize views
         mainMenu = new MainMenu(menuController, menuViewModel);
         game = new Game(gameController, gameViewModel);
         gameResult = new GameResult(this, gameResultViewModel);
-        gallery = new Gallery(this, galleryWindowController); 
+        gallery = new Gallery(galleryController, galleryViewModel);
         settings = new Settings(this, settingsController, settingsViewModel);
 
         // Add PropertyChangeListener to GalleryWindowViewModel
@@ -137,6 +156,17 @@ public class Application extends JFrame {
                     gallery.refresh();
                     gallery.revalidate();
                     gallery.repaint();
+                }
+            }
+        });
+
+        galleryViewModel.addPropertyChangeListener(new PropertyChangeListener() {
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                if (evt.getPropertyName().equals("state")) {
+                    GalleryState newState = galleryViewModel.getState();
+                    List<GameRecord> recordList = newState.getGameRecords();
+
                 }
             }
         });
@@ -240,7 +270,7 @@ public class Application extends JFrame {
     }
 
     public void showGallery() {
-        gallery.refresh();
+        galleryController.refreshGallery();
         setContentPane(gallery);
         revalidate();
         repaint();
