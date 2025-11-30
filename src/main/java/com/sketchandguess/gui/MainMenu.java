@@ -47,9 +47,7 @@ public class MainMenu extends JPanel {
         // Button actions
         playButton.addActionListener(new ActionListener() {
             @Override
-            public void actionPerformed(ActionEvent e) {
-                app.showGame();
-            }
+            public void actionPerformed(ActionEvent e) {app.startNewGame();}
         });
         
         galleryButton.addActionListener(new ActionListener() {

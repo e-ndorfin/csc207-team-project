@@ -131,7 +131,11 @@ public class GameDataBase implements GameDataAccessInterface {
             throw new RuntimeException("Failed to delete game record from CSV", e);
         }
     }
+
     /**
+     * Legacy method for deleting games (does not save to CSV).
+     * Consider using deleteGame() instead which properly updates the CSV file.
+     */
     public Boolean DeleteGame(GameRecord DeletedGame) {
         try {
             this.GameData.remove(DeletedGame);
@@ -139,8 +143,7 @@ public class GameDataBase implements GameDataAccessInterface {
         } catch (Exception e) {
             return Boolean.FALSE;
         }
-
-    } **/
+    }
 
     @Override
     public void save(GameRecord gameRecord) {

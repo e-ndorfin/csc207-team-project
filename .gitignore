@@ -39,3 +39,4 @@ build/
 *.class
 .history
 .aider*
+*.png

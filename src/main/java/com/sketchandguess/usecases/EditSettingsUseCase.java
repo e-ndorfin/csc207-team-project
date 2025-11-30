@@ -8,8 +8,8 @@ import com.sketchandguess.entities.UserSettings;
  */
 public class EditSettingsUseCase {
 
-    private static final int MIN_TIME_LIMIT = 30;
-    private static final int MAX_TIME_LIMIT = 300;
+    private static final int MIN_TIME_LIMIT = 15;
+    private static final int MAX_TIME_LIMIT = 45;
 
     private final UserSettingsDataBase userSettingsDataBase;
 

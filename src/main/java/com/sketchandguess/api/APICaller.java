@@ -1,5 +1,7 @@
 package com.sketchandguess.api;
 
+import java.util.concurrent.CompletableFuture;
+
 public interface APICaller {
-    String call(String apiToken);
+    CompletableFuture<String> call(byte[] imageData);
 }

@@ -1,8 +1,17 @@
 package com.sketchandguess.api;
 
 public class APIHandler {
-    private String apiKey;
     private String inferenceUrl;
-    private double confidenceThreshold;
-    private int maxGuessesToReturn;
+
+    public APIHandler(String inferenceUrl) {
+        this.inferenceUrl = inferenceUrl;
+    }
+
+    public String getInferenceUrl() {
+        return inferenceUrl;
+    }
+
+    public void setInferenceUrl(String inferenceUrl) {
+        this.inferenceUrl = inferenceUrl;
+    }
 }
