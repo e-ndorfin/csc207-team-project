@@ -62,6 +62,7 @@ public class Gallery extends JPanel implements PropertyChangeListener {
             @Override
             public void actionPerformed(ActionEvent e) {
                 controller.clearSearch();
+                searchBarField.setText("");
                 updateGalleryView();
             }
         });
