@@ -8,7 +8,7 @@ import com.sketchandguess.usecases.DeleteGameInputBoundary;
 import com.sketchandguess.usecases.SaveImageToUserInputBoundary;
 import java.io.IOException;
 
-public class GalleryWindowController {
+public class GalleryWindowController extends GalleryWindowPresenter {
     private final SelectGameRecordInputBoundary selectGameRecordUseCase;
     private final ViewManagerModel viewManagerModel;
     private final GalleryWindowState state;
