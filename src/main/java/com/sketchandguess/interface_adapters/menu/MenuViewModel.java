@@ -2,24 +2,25 @@ package com.sketchandguess.interface_adapters.menu;
 
 import com.sketchandguess.interface_adapters.ViewModel;
 
-import java.beans.PropertyChangeListener;
-import java.beans.PropertyChangeSupport;
+public class MenuViewModel extends ViewModel<MenuState> {
 
-public class MenuViewModel extends ViewModel {
     public static final String VIEW_NAME = "MainMenu";
-    private final PropertyChangeSupport support = new PropertyChangeSupport(this);
+
+    private MenuState state = new MenuState();
 
     public MenuViewModel() {
         super(VIEW_NAME);
     }
 
     @Override
-    public void firePropertyChange() {
-        support.firePropertyChange("state", null, null);
+    public MenuState getState() {
+        return state;
     }
 
     @Override
-    public void addPropertyChangeListener(PropertyChangeListener listener) {
-        support.addPropertyChangeListener(listener);
+    public void setState(MenuState state) {
+        this.state = state;
+        super.setState(state);
+        firePropertyChange("state");
     }
 }

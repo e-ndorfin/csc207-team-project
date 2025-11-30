@@ -53,28 +53,28 @@ public class MainMenu extends JPanel {
         playButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.startNewGame();
+                controller.executePlayGame();
             }
         });
         
         galleryButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.showGallery();
+                controller.executeShowGallery();
             }
         });
         
         settingsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.showSettings();
+                controller.executeShowSettings();
             }
         });
         
         exitButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                controller.exitApplication();
+                controller.executeExit();
             }
         });
     }

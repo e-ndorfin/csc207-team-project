@@ -5,8 +5,7 @@ import com.sketchandguess.entities.GameRecord;
 public interface DeleteGameInputBoundary {
     /**
      * @param gameRecord the game record which is supposed to be deleted
-     * @return true if the record is deleted successfully, false if failed to be deleted
+     * @return null if the record is deleted successfully, error message if failed
      */
-    boolean delete(GameRecord gameRecord);
+    String delete(GameRecord gameRecord);
 }
-

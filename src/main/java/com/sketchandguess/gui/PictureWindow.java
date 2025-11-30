@@ -11,6 +11,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
+import javax.swing.JOptionPane;
 
 public class PictureWindow extends JFrame implements PropertyChangeListener {
 
@@ -84,8 +85,17 @@ public class PictureWindow extends JFrame implements PropertyChangeListener {
             GameRecord record = state.getCurrentRecord();
 
             if (record != null) {
-                GalleryWindowController.deleteGame();
-                this.dispose();
+                int result = JOptionPane.showConfirmDialog(
+                        this,
+                        "Are you sure you want to delete this image?",
+                        "Confirm Delete",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE
+                );
+                if (result == JOptionPane.YES_OPTION) {
+                    GalleryWindowController.deleteGame();
+                    this.dispose();
+                }
             }
         });
     }
