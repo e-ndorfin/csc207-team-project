@@ -37,7 +37,7 @@ public class GameController {
      * 2. Packages the game stats.
      * 3. Calls the RecordGame use case.
      *
-     * @param image      The drawing from the game.
+     * @param fullSizeImage      The drawing from the game.
      * @param prompt     The prompt for the game.
      * @param difficulty The difficulty level.
      * @param timeTaken  The time taken by the user.
