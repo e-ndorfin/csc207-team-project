@@ -55,6 +55,17 @@ public class ViewModel<T> {
     }
 
     /**
+     * Fires a property changed event with custom old and new values.
+     * This is useful for subclasses that need to track previous state.
+     * @param propertyName the label for the property that was changed
+     * @param oldValue the previous value
+     * @param newValue the new value
+     */
+    protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+        this.support.firePropertyChange(propertyName, oldValue, newValue);
+    }
+
+    /**
      * Adds a PropertyChangeListener to this ViewModel.
      * @param listener The PropertyChangeListener to be added
      */

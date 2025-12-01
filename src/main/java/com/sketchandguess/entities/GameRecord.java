@@ -41,6 +41,7 @@ public class GameRecord {
 
     /**
      * Returns the current local date.
+     *
      * @return the current local date.
      */
     public LocalDate getDate() {

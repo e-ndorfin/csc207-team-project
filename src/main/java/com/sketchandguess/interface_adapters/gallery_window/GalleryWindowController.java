@@ -1,20 +1,19 @@
 package com.sketchandguess.interface_adapters.gallery_window;
 
 import com.sketchandguess.entities.GameRecord;
+import com.sketchandguess.usecases.deletegame.DeleteGameInputBoundary;
+import com.sketchandguess.usecases.saveimagetouser.SaveImageToUserInputBoundary;
+import com.sketchandguess.usecases.selectgame.SelectGameRecordInputBoundary;
 import com.sketchandguess.interface_adapters.ViewManagerModel;
-import com.sketchandguess.usecases.select_game.SelectGameRecordInputBoundary;
-
-import com.sketchandguess.usecases.DeleteGameInputBoundary;
-import com.sketchandguess.usecases.SaveImageToUserInputBoundary;
 import java.io.IOException;
 
-public class GalleryWindowController extends GalleryWindowPresenter {
-    private final SelectGameRecordInputBoundary selectGameRecordUseCase;
-    private final ViewManagerModel viewManagerModel;
+public class GalleryWindowController {
     private final GalleryWindowState state;
     private final GalleryWindowPresenter presenter;
     private final DeleteGameInputBoundary deleteGameUseCase;
     private final SaveImageToUserInputBoundary saveImageUseCase;
+    private final SelectGameRecordInputBoundary selectGameRecordUseCase;
+    private final ViewManagerModel viewManagerModel;
 
     public GalleryWindowController(GalleryWindowState state,
                                    GalleryWindowPresenter presenter,
@@ -30,8 +29,9 @@ public class GalleryWindowController extends GalleryWindowPresenter {
         this.viewManagerModel = viewManagerModel;
     }
 
-    public void selectGameRecord(GameRecord record) {
-        selectGameRecordUseCase.execute(record);
+    public void setRecord(GameRecord record) {
+        // Clear the record when window closes - this allows the same record to be reopened
+        presenter.presentRecord(record);
     }
 
     public void goBackToMainMenu() {
@@ -62,5 +62,9 @@ public class GalleryWindowController extends GalleryWindowPresenter {
         } catch (IOException e) {
             presenter.prepareFailView("Error while saving: " + e.getMessage());
         }
+    }
+
+    public void selectGameRecord(GameRecord record) {
+        selectGameRecordUseCase.execute(record);
     }
 }

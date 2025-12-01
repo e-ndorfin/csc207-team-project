@@ -29,6 +29,10 @@ public class GalleryWindowViewModel extends ViewModel {
         support.firePropertyChange("state", null, this.state);
     }
 
+    public void fireDeletionEvent() {
+        support.firePropertyChange("deleted", null, true);
+    }
+
     @Override
     public void addPropertyChangeListener(PropertyChangeListener listener) {
         support.addPropertyChangeListener(listener);

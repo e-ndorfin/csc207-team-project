@@ -21,6 +21,10 @@ For optimal model predictions,
 ["airplane", "ambulance", "angel", "ant", "anvil", "apple", "arm", "asparagus", "axe", "backpack", "banana", "bandage", "barn", "baseball", "basket", "basketball", "bat", "bathtub", "beach", "bear", "beard", "bed", "bee", "belt", "bench", "bicycle", "binoculars", "bird", "blackberry", "blueberry", "book", "boomerang", "bottlecap", "bowtie", "bracelet", "brain", "bread", "bridge", "broccoli", "broom", "bucket", "bulldozer", "bus", "bush", "butterfly", "cactus", "cake", "calculator", "calendar", "camel"]
 
 
+Easy: [""apple"", ""arm"", ""axe"", ""banana"", ""bed"", ""bee"", ""belt"", ""book"", ""bread"", ""broom"", ""bucket"", ""bush"", ""cactus"", ""cake"", ""calendar""]
+Medium: [""airplane"", ""ant"", ""anvil"", ""backpack"", ""bandage"", ""barn"", ""baseball"", ""basket"", ""basketball"", ""bat"", ""bathtub"", ""bench"", ""bicycle"", ""bird"", ""blackberry"", ""blueberry"", ""bottlecap"", ""bowtie"", ""brain"", ""broccoli"", ""bus"", ""butterfly"", ""calculator""]
+Hard: [""ambulance"", ""angel"", ""asparagus"", ""beach"", ""bear"", ""beard"", ""binoculars"", ""boomerang"", ""bracelet"", ""bridge"", ""bulldozer"", ""camel""]
+
 ## API Usage
 
 Send POST request with image file:
