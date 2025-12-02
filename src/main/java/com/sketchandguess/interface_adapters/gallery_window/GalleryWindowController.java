@@ -45,14 +45,7 @@ public class GalleryWindowController {
             presenter.prepareFailView("No record selected to delete.");
             return;
         }
-        String error = deleteGameUseCase.delete(record);
-        boolean success = (error == null);
-        if (!success) {
-            presenter.prepareFailView(error);
-        } else {
-            state.setCurrentRecord(null);
-            presenter.presentDeletionSuccess();
-        }
+        deleteGameUseCase.delete(record);
     }
 
     public void saveImage() {

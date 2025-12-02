@@ -24,6 +24,7 @@ import com.sketchandguess.interface_adapters.settings.SettingsController;
 import com.sketchandguess.interface_adapters.settings.SettingsPresenter;
 import com.sketchandguess.interface_adapters.settings.SettingsViewModel;
 import com.sketchandguess.usecases.GameDataAccessInterface;
+import com.sketchandguess.usecases.deletegame.DeleteGameInputBoundary;
 import com.sketchandguess.usecases.deletegame.DeleteGameUseCase;
 import com.sketchandguess.usecases.editsettings.EditSettingsUseCase;
 import com.sketchandguess.usecases.gallery.RetrieveGamesInputBoundary;
@@ -32,13 +33,16 @@ import com.sketchandguess.usecases.gallery.RetrieveGamesUseCase;
 import com.sketchandguess.usecases.gallery.SearchGamesUseCase;
 import com.sketchandguess.usecases.retrievesettings.RetrieveSettingsUseCase;
 import com.sketchandguess.usecases.recordgame.RecordGameUseCase;
+import com.sketchandguess.usecases.saveimagetouser.SaveImageToUserInputBoundary;
 import com.sketchandguess.usecases.saveimagetouser.SaveImageToUserUseCase;
 import com.sketchandguess.usecases.gameplay.GameplayUseCase;
+import com.sketchandguess.usecases.selectgame.SelectGameRecordOutputBoundary;
 import com.sketchandguess.usecases.selectgame.SelectGameRecordUseCase;
 import com.sketchandguess.usecases.selectgame.SelectGameRecordUseCase;
 import com.sketchandguess.usecases.GameDataAccessInterface;
 
 import javax.swing.*;
+import java.awt.*;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
@@ -56,7 +60,7 @@ public class Application extends JFrame {
     private GameResult gameResult;
     private UserSettingsDataBase userSettingsDataBase;
     private GameDataBase gameDataBase;
-    
+
     public Application() {
         setTitle("Sketch and Guess");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -64,19 +68,29 @@ public class Application extends JFrame {
         setLocationRelativeTo(null);
 
         // Initialize ViewManagerModel
-        viewManagerModel = new ViewManagerModel(); 
+        viewManagerModel = new ViewManagerModel();
 
         // Initialize database
         userSettingsDataBase = UserSettingsDataBase.getInstance();
         gameDataBase = new GameDataBase();
-        
+
         // Initialize GalleryWindow components
         galleryWindowViewModel = new GalleryWindowViewModel();
         GalleryWindowPresenter galleryWindowPresenter = new GalleryWindowPresenter(galleryWindowViewModel);
         GalleryWindowState galleryWindowState = galleryWindowViewModel.getState();
-        DeleteGameUseCase deleteGameUseCase = new DeleteGameUseCase(gameDataBase);
+        // DeleteGameUseCase deleteGameUseCase = new DeleteGameUseCase(gameDataBase, galleryWindowPresenter);
         SaveImageToUserUseCase saveImageToUserUseCase = new SaveImageToUserUseCase();
-        SelectGameRecordUseCase selectGameRecordUseCase = new SelectGameRecordUseCase(galleryWindowPresenter);
+        SelectGameRecordUseCase selectGameRecordUseCase = new SelectGameRecordUseCase((SelectGameRecordOutputBoundary) galleryWindowPresenter);
+        GalleryWindowState galleryState = galleryWindowViewModel.getState();
+        if (galleryState == null) {
+            galleryState = new GalleryWindowState();
+            galleryWindowViewModel.setState(galleryState);
+        }
+
+        this.gameDataBase = new GameDataBase();
+
+        DeleteGameInputBoundary deleteGameUseCase = new DeleteGameUseCase(gameDataBase, galleryWindowPresenter);
+        SaveImageToUserInputBoundary saveImageUseCase = new SaveImageToUserUseCase();
         galleryWindowController = new GalleryWindowController(
             galleryWindowState,
             galleryWindowPresenter,
@@ -84,7 +98,7 @@ public class Application extends JFrame {
             saveImageToUserUseCase,
             selectGameRecordUseCase,
             viewManagerModel
-        ); 
+        );
 
         // Initialize API components
         APIHandler apiHandler = new APIHandler("https://zachttang-quickdraw.hf.space/predict");
@@ -96,18 +110,18 @@ public class Application extends JFrame {
 
         // Initialize Game/Record Components
         GamePresenter gamePresenter = new GamePresenter(viewManagerModel, gameResultViewModel, gameViewModel);
-        
+
         RecordGameUseCase recordGameUseCase = new RecordGameUseCase(gameDataBase, gamePresenter);
         GameplayUseCase gameplayUseCase = new GameplayUseCase(apiCaller, gamePresenter);
-        
+
         GameController gameController = new GameController(recordGameUseCase, gameplayUseCase);
 
         SettingsViewModel settingsViewModel = new SettingsViewModel();
         SettingsPresenter settingsPresenter = new SettingsPresenter(settingsViewModel);
-        
+
         EditSettingsUseCase editSettingsUseCase = new EditSettingsUseCase(userSettingsDataBase, settingsPresenter);
         RetrieveSettingsUseCase retrieveSettingsUseCase = new RetrieveSettingsUseCase(userSettingsDataBase, settingsPresenter);
-        
+
         SettingsController settingsController = new SettingsController(editSettingsUseCase, retrieveSettingsUseCase);
 
         // Initialize Menu components
@@ -137,18 +151,18 @@ public class Application extends JFrame {
                 if (evt.getPropertyName().equals("state")) {
                     GalleryWindowState newState = galleryWindowViewModel.getState();
                     GameRecord currentRecord = newState.getCurrentRecord();
-                    
+
                     // Open PictureWindow when a different record is selected
                     // (either going from null to a record, or switching to a different record)
                     boolean recordChanged = (previousRecord[0] == null && currentRecord != null) ||
-                                          (previousRecord[0] != null && currentRecord != null && 
+                                          (previousRecord[0] != null && currentRecord != null &&
                                            !previousRecord[0].equals(currentRecord));
-                    
+
                     if (recordChanged) {
                         PictureWindow pictureWindow = new PictureWindow(galleryWindowViewModel, galleryWindowController);
                         pictureWindow.setVisible(true);
                     }
-                    
+
                     // Update the previous record
                     previousRecord[0] = currentRecord;
                 } else if (evt.getPropertyName().equals("deleted")) {
@@ -215,7 +229,7 @@ public class Application extends JFrame {
         //
         // Called when new game is started from main menu / retry game
         //
-        
+
         // Initialize default difficulty
         String diffName = "Medium";
         double timeLimit = 30.0;
@@ -224,29 +238,29 @@ public class Application extends JFrame {
         if (userSettingsDataBase != null && userSettingsDataBase.getUserSettings() != null) {
             com.sketchandguess.entities.UserSettings settings = userSettingsDataBase.getUserSettings();
             String difficultyNameFromSettings = settings.getDifficultyName();
-            
+
             // Capitalize first letter of difficulty name to match Difficulty class expectations
             if (difficultyNameFromSettings != null && !difficultyNameFromSettings.isEmpty()) {
-                diffName = difficultyNameFromSettings.substring(0, 1).toUpperCase() + 
+                diffName = difficultyNameFromSettings.substring(0, 1).toUpperCase() +
                           difficultyNameFromSettings.substring(1).toLowerCase();
             }
             // Use the custom time limit from settings
             timeLimit = settings.getDefaultTimeLimit();
         }
-        
+
         // Create Difficulty object with the difficulty name
         com.sketchandguess.entities.Difficulty difficulty = new com.sketchandguess.entities.Difficulty(diffName);
-        
+
         game.resetForNewGame();  // Clears canvas, clears predictions, resets tool
         game.setDifficultyText(difficulty.getDifficultyName());  // Sets difficulty text in game view
         game.setPromptText(difficulty.getRandomPrompt());  // Sets prompt text in game view
-        
+
         // Sets the time limit from user settings
         game.setTimeLimitSeconds(timeLimit);
-        
+
         // System.out.println("[DEBUG] Starting countdown in Application...");
         game.startCountdown();
-        
+
         showGame();  // Shows the game view
     }
 

@@ -1,14 +1,18 @@
 package com.sketchandguess.interface_adapters.gallery_window;
 
 import com.sketchandguess.entities.GameRecord;
+import com.sketchandguess.usecases.deletegame.DeleteGameOutputBoundary;
 import com.sketchandguess.usecases.selectgame.SelectGameRecordOutputBoundary;
-
 import java.time.format.DateTimeFormatter;
+//import com.sketchandguess.usecases.select_game.SelectGameRecordOutputBoundary;
 
-public class GalleryWindowPresenter implements SelectGameRecordOutputBoundary {
+public class GalleryWindowPresenter implements SelectGameRecordOutputBoundary, DeleteGameOutputBoundary {
+
+   // private static final String DATE_FORMATTER;
+
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     private final GalleryWindowViewModel viewModel;
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy/MM/dd");  // formats date in the yyy/MM/dd format
 
     public GalleryWindowPresenter(GalleryWindowViewModel viewModel) {
         this.viewModel = viewModel;
@@ -34,7 +38,7 @@ public class GalleryWindowPresenter implements SelectGameRecordOutputBoundary {
     public void prepareFailView(String error) {
         GalleryWindowState state = viewModel.getState();
         // If we have an error, set all the state to empty strings so that we don't display any information
-        state.setErrorMessage(error);  
+        state.setErrorMessage(error);
         state.setCurrentRecord(null);
         state.setDateText("");
         state.setPromptText("");
@@ -73,6 +77,14 @@ public class GalleryWindowPresenter implements SelectGameRecordOutputBoundary {
         state.setErrorMessage("");
         viewModel.setState(state);
         viewModel.firePropertyChange();
+    }
+
+    @Override
+    public void prepareDeleteSuccessView() {
+        GalleryWindowState state = viewModel.getState();
+        state.setCurrentRecord(null);
+        state.setErrorMessage(null);
+        viewModel.setState(state);
         viewModel.fireDeletionEvent();
     }
 }
