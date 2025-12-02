@@ -145,11 +145,10 @@ public class Game extends JPanel implements PropertyChangeListener {
         // Guard: prevent duplicate execution
         if (hasFinishedGame) {
             // System.out.println("[DEBUG] finishGame: Game has already finished, ignoring duplicate call");
-            return;
+        }else {
+            // Mark that we're finishing/executing finishGame
+            hasFinishedGame = true;
         }
-        
-        // Mark that we're finishing/executing finishGame
-        hasFinishedGame = true;
         
         // If this is a win, also set isGameFinishing (already set in propertyChange, but ensure it's set)
         if (forceWin) {

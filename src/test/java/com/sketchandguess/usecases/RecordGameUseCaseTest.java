@@ -18,6 +18,45 @@ import static org.junit.jupiter.api.Assertions.*;
 class RecordGameUseCaseTest {
 
     @Test
+    void nullImageUsesDefaultPath() {
+        // Arrange
+        InMemoryGameDataAccess dataAccess = new InMemoryGameDataAccess();
+        Difficulty difficulty = new Difficulty("Medium");
+
+        BufferedImage fullSizeImage = null;
+        BufferedImage thumbnail = new BufferedImage(50, 50, BufferedImage.TYPE_INT_ARGB);
+
+        RecordGameInputData inputData = new RecordGameInputData(
+                true,
+                "A fast red car",
+                30.0,
+                60.0,
+                difficulty,
+                fullSizeImage,
+                thumbnail,
+                "sports car"
+        );
+
+        RecordGameOutputBoundary presenter = new RecordGameOutputBoundary() {
+            @Override
+            public void present(RecordGameOutputData outputData) {
+                assertEquals("default_image.png", outputData.imagePath,
+                        "When saving image fails, default_image.png should be used");
+
+                assertEquals(1, dataAccess.getGames().size(), "One game should still be saved");
+                GameRecord saved = dataAccess.getGames().get(0);
+                assertEquals("default_image.png", saved.getImagePath(),
+                        "Saved record should also use default image path");
+            }
+        };
+
+        RecordGameInputBoundary useCase = new RecordGameUseCase(dataAccess, presenter);
+
+        // Act
+        useCase.execute(inputData);
+    }
+
+    @Test
     void successTest() {
         // Arrange
         InMemoryGameDataAccess dataAccess = new InMemoryGameDataAccess();

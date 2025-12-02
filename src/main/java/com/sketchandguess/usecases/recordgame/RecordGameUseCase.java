@@ -82,7 +82,7 @@ public class RecordGameUseCase implements RecordGameInputBoundary {
             File outputFile = path.toFile();
             ImageIO.write(image, "png", outputFile);
             return directory + fileName; 
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return "default_image.png"; 
         }
